@@ -49,4 +49,4 @@ enabled = true
 enabled = false
 
 [functions.admin-invite-user]
-verify_jwt = true
+verify_jwt = false
