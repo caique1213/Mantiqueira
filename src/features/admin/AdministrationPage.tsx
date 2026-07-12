@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+﻿import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Tabs from '@radix-ui/react-tabs';
 import {
@@ -29,14 +29,13 @@ import {
   type ManagedUser,
 } from './admin.api';
 import styles from './administration.module.css';
-import { runtimeConfig } from '../../lib/env';
 import { CatalogsPanel } from './CatalogsPanel';
 
 const tabs = [
   { value: 'general', label: 'Geral', icon: Settings2 },
-  { value: 'appearance', label: 'Aparência', icon: Palette },
-  { value: 'users', label: 'Usuários', icon: UserCog },
-  { value: 'catalogs', label: 'Catálogos', icon: BookOpenCheck },
+  { value: 'appearance', label: 'AparÃªncia', icon: Palette },
+  { value: 'users', label: 'UsuÃ¡rios', icon: UserCog },
+  { value: 'catalogs', label: 'CatÃ¡logos', icon: BookOpenCheck },
   { value: 'audit', label: 'Auditoria', icon: History },
 ] as const;
 
@@ -64,13 +63,13 @@ export function AdministrationPage() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="ADMINISTRAÇÃO"
+        eyebrow="ADMINISTRAÃ‡ÃƒO"
         title="Controle do sistema"
-        description="Configurações profundas com validação, histórico e proteção das regras físicas não negociáveis."
+        description="ConfiguraÃ§Ãµes profundas com validaÃ§Ã£o, histÃ³rico e proteÃ§Ã£o das regras fÃ­sicas nÃ£o negociÃ¡veis."
       />
 
       <Tabs.Root className={styles.tabs} defaultValue="general">
-        <Tabs.List className={styles.tabList} aria-label="Seções administrativas">
+        <Tabs.List className={styles.tabList} aria-label="SeÃ§Ãµes administrativas">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -150,7 +149,7 @@ function GeneralSettings() {
       setChanges({});
       await queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
       await queryClient.invalidateQueries({ queryKey: ['app-bootstrap'] });
-      toast.success('Configurações salvas e auditadas.');
+      toast.success('ConfiguraÃ§Ãµes salvas e auditadas.');
     },
     onError: (error) => toast.error(error.message),
   });
@@ -160,7 +159,7 @@ function GeneralSettings() {
     return (
       <StatePanel
         kind="error"
-        title="Configurações indisponíveis"
+        title="ConfiguraÃ§Ãµes indisponÃ­veis"
         description={settings.error.message}
       />
     );
@@ -169,13 +168,13 @@ function GeneralSettings() {
   const labels: Record<string, string> = {
     'system.name': 'Nome do sistema',
     'company.name': 'Empresa',
-    'system.timezone': 'Fuso horário',
+    'system.timezone': 'Fuso horÃ¡rio',
     'system.date_format': 'Formato de data e hora',
-    'home.title': 'Título da Home',
-    'home.subtitle': 'Subtítulo da Home',
-    'analytics.recurrence.count': 'Quantidade para reincidência',
-    'analytics.recurrence.window_days': 'Janela da reincidência (dias)',
-    'inventory.stale_after_days': 'Cadastro desatualizado após (dias)',
+    'home.title': 'TÃ­tulo da Home',
+    'home.subtitle': 'SubtÃ­tulo da Home',
+    'analytics.recurrence.count': 'Quantidade para reincidÃªncia',
+    'analytics.recurrence.window_days': 'Janela da reincidÃªncia (dias)',
+    'inventory.stale_after_days': 'Cadastro desatualizado apÃ³s (dias)',
   };
 
   return (
@@ -184,7 +183,7 @@ function GeneralSettings() {
         <div>
           <span>GERAL</span>
           <h2>Identidade e comportamento</h2>
-          <p>Textos são armazenados como dados, sem permitir HTML ou SQL.</p>
+          <p>Textos sÃ£o armazenados como dados, sem permitir HTML ou SQL.</p>
         </div>
         <Button
           leadingIcon={<Save />}
@@ -192,7 +191,7 @@ function GeneralSettings() {
           loading={mutation.isPending}
           onClick={() => mutation.mutate()}
         >
-          Salvar alterações
+          Salvar alteraÃ§Ãµes
         </Button>
       </header>
       <div className={styles.settingsGrid}>
@@ -213,7 +212,7 @@ function GeneralSettings() {
         <span>
           <strong>Estrutura protegida</strong>
           <small>
-            A matriz das 48 posturas e suas quantidades de baterias não são editáveis nesta tela.
+            A matriz das 48 posturas e suas quantidades de baterias nÃ£o sÃ£o editÃ¡veis nesta tela.
           </small>
         </span>
       </div>
@@ -234,27 +233,33 @@ function UsersAdmin() {
   const [invite, setInvite] = useState({
     email: '',
     displayName: '',
+    password: '',
     roleCode: 'galponista',
     primarySectorId: '',
   });
-  const inviteEnabled =
-    runtimeConfig.configured && runtimeConfig.env.VITE_ENABLE_ADMIN_INVITES === 'true';
   const inviteMutation = useMutation({
     mutationFn: () =>
       inviteUser({
         email: invite.email.trim(),
         displayName: invite.displayName.trim(),
+        password: invite.password,
         roleCode: invite.roleCode,
         primarySectorId: invite.primarySectorId || null,
       }),
     onSuccess: async () => {
-      setInvite({ email: '', displayName: '', roleCode: 'galponista', primarySectorId: '' });
+      setInvite({
+        email: '',
+        displayName: '',
+        password: '',
+        roleCode: 'galponista',
+        primarySectorId: '',
+      });
       setInviteOpen(false);
       await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      toast.success('Convite enviado e perfil configurado.');
+      toast.success('UsuÃ¡rio criado e perfil configurado.');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'Não foi possível enviar o convite.'),
+      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel enviar o convite.'),
   });
 
   if (query.isLoading) return <PageSkeleton />;
@@ -262,7 +267,7 @@ function UsersAdmin() {
     return (
       <StatePanel
         kind="error"
-        title="Usuários indisponíveis"
+        title="UsuÃ¡rios indisponÃ­veis"
         description={query.error?.message ?? 'Sem dados.'}
       />
     );
@@ -288,7 +293,7 @@ function UsersAdmin() {
       setPending(null);
       toast.success('Acesso atualizado e auditado.');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Não foi possível atualizar o usuário.');
+      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel atualizar o usuÃ¡rio.');
     } finally {
       setBusy(false);
     }
@@ -316,14 +321,12 @@ function UsersAdmin() {
       <header className={styles.panelHeader}>
         <div>
           <span>ACESSO</span>
-          <h2>Usuários e perfis</h2>
-          <p>Novos usuários são convidados pelo Supabase; aqui você controla escopo e ativação.</p>
+          <h2>UsuÃ¡rios e perfis</h2>
+          <p>Novos usuÃ¡rios sÃ£o convidados pelo Supabase; aqui vocÃª controla escopo e ativaÃ§Ã£o.</p>
         </div>
-        {inviteEnabled && (
-          <Button leadingIcon={<UserPlus />} onClick={() => setInviteOpen((value) => !value)}>
-            Convidar usuário
-          </Button>
-        )}
+        <Button leadingIcon={<UserPlus />} onClick={() => setInviteOpen((value) => !value)}>
+          Criar usuário
+        </Button>
       </header>
       {inviteOpen && (
         <form
@@ -354,6 +357,20 @@ function UsersAdmin() {
               onChange={(event) =>
                 setInvite((current) => ({ ...current, email: event.target.value }))
               }
+            />
+          </label>
+          <label>
+            <span>Senha temporária</span>
+            <input
+              required
+              type="text"
+              minLength={8}
+              maxLength={128}
+              value={invite.password}
+              onChange={(event) =>
+                setInvite((current) => ({ ...current, password: event.target.value }))
+              }
+              placeholder="Ex: Mantiqueira@123"
             />
           </label>
           <label>
@@ -394,19 +411,16 @@ function UsersAdmin() {
             <Button
               type="submit"
               loading={inviteMutation.isPending}
-              disabled={invite.displayName.trim().length < 2 || !invite.email.includes('@')}
+              disabled={
+                invite.displayName.trim().length < 2 ||
+                !invite.email.includes('@') ||
+                invite.password.length < 8
+              }
             >
-              Enviar convite
+              Criar usuário
             </Button>
           </div>
         </form>
-      )}
-      {!inviteEnabled && (
-        <p className={styles.inviteHint}>
-          Convites pelo site ficam disponíveis após publicar a Edge Function e ativar{' '}
-          <code>VITE_ENABLE_ADMIN_INVITES=true</code>. Enquanto isso, crie o usuário em
-          Authentication → Users no Supabase.
-        </p>
       )}
       <div className={styles.userList}>
         {query.data.users.map((user) => {
@@ -425,9 +439,9 @@ function UsersAdmin() {
               <div className={styles.userIdentity}>
                 <strong>
                   {user.display_name}
-                  {self ? ' (você)' : ''}
+                  {self ? ' (vocÃª)' : ''}
                 </strong>
-                <small>{user.roleCodes.join(' · ') || 'Sem perfil'}</small>
+                <small>{user.roleCodes.join(' Â· ') || 'Sem perfil'}</small>
               </div>
               <div className={styles.userEditor}>
                 <label>
@@ -513,17 +527,17 @@ function UsersAdmin() {
       <ConfirmDialog
         open={Boolean(pending)}
         onOpenChange={(open) => !open && setPending(null)}
-        title="Confirmar mudança de acesso"
+        title="Confirmar mudanÃ§a de acesso"
         description={
           pending ? (
             <p>
-              <strong>{pending.user.display_name}</strong> ficará{' '}
+              <strong>{pending.user.display_name}</strong> ficarÃ¡{' '}
               {pending.active ? 'ativo' : 'inativo'} com o perfil{' '}
-              <strong>{pending.roleCodes.join(', ')}</strong>. A mudança será registrada.
+              <strong>{pending.roleCodes.join(', ')}</strong>. A mudanÃ§a serÃ¡ registrada.
             </p>
           ) : null
         }
-        confirmLabel="Confirmar alteração"
+        confirmLabel="Confirmar alteraÃ§Ã£o"
         typedConfirmation="CONFIRMAR"
         tone="danger"
         busy={busy}
@@ -538,23 +552,23 @@ function AuditPanel() {
   if (query.isLoading) return <PageSkeleton />;
   if (query.isError)
     return (
-      <StatePanel kind="error" title="Auditoria indisponível" description={query.error.message} />
+      <StatePanel kind="error" title="Auditoria indisponÃ­vel" description={query.error.message} />
     );
   if (!query.data?.length)
     return (
       <StatePanel
         kind="empty"
         title="Nenhum evento registrado"
-        description="As ações críticas aparecerão aqui."
+        description="As aÃ§Ãµes crÃ­ticas aparecerÃ£o aqui."
       />
     );
   return (
     <section className={styles.panel}>
       <header className={styles.panelHeader}>
         <div>
-          <span>HISTÓRICO</span>
+          <span>HISTÃ“RICO</span>
           <h2>Auditoria do sistema</h2>
-          <p>Registro append-only das alterações importantes.</p>
+          <p>Registro append-only das alteraÃ§Ãµes importantes.</p>
         </div>
       </header>
       <div className={styles.auditList}>
@@ -568,7 +582,7 @@ function AuditPanel() {
             <div>
               <strong>{entry.action}</strong>
               <small>
-                {entry.entity_table} · {entry.entity_id ?? 'sistema'}
+                {entry.entity_table} Â· {entry.entity_id ?? 'sistema'}
               </small>
             </div>
           </article>
@@ -577,3 +591,4 @@ function AuditPanel() {
     </section>
   );
 }
+

@@ -94,6 +94,7 @@ export async function manageUser(input: {
 export async function inviteUser(input: {
   email: string;
   displayName: string;
+  password: string;
   roleCode: string;
   primarySectorId: string | null;
 }) {
@@ -102,7 +103,12 @@ export async function inviteUser(input: {
   });
   if (error) throw error;
   return z
-    .object({ userId: z.string().uuid(), email: z.string().email(), invited: z.boolean() })
+    .object({
+      userId: z.string().uuid(),
+      email: z.string().email(),
+      created: z.boolean().optional(),
+      invited: z.boolean().optional(),
+    })
     .parse(data);
 }
 

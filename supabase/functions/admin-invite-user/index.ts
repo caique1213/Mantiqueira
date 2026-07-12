@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
-const allowedRoles = new Set(['galponista', 'eletricista', 'mecanico', 'administrador']);
+const allowedRoles = new Set(['galponista', 'eletricista', 'mecanico', 'civil', 'administrador']);
 
 function json(body: unknown, status = 200, origin = '*') {
   return new Response(status === 204 ? null : JSON.stringify(body), {
@@ -31,6 +31,7 @@ Deno.serve(async (request) => {
   if (!supabaseUrl || !publishableKey || !serviceRoleKey) {
     return json({ error: 'Função não configurada.' }, 500, configuredOrigin);
   }
+
   const authorization = request.headers.get('Authorization');
   if (!authorization?.startsWith('Bearer '))
     return json({ error: 'Autenticação obrigatória.' }, 401, configuredOrigin);
@@ -39,6 +40,7 @@ Deno.serve(async (request) => {
     global: { headers: { Authorization: authorization } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
+
   const { data: access, error: accessError } = await userClient.rpc('get_my_access');
   const permissions = Array.isArray(access?.permissions) ? access.permissions : [];
   if (
@@ -55,69 +57,63 @@ Deno.serve(async (request) => {
   } catch {
     return json({ error: 'Corpo JSON inválido.' }, 400, configuredOrigin);
   }
+
   const email = typeof payload.email === 'string' ? payload.email.trim().toLowerCase() : '';
   const displayName = typeof payload.displayName === 'string' ? payload.displayName.trim() : '';
+  const password = typeof payload.password === 'string' ? payload.password : '';
   const roleCode = typeof payload.roleCode === 'string' ? payload.roleCode : 'galponista';
   const primarySectorId =
     typeof payload.primarySectorId === 'string' && payload.primarySectorId
       ? payload.primarySectorId
       : null;
+
   if (!/^\S+@\S+\.\S+$/.test(email))
     return json({ error: 'E-mail inválido.' }, 400, configuredOrigin);
   if (displayName.length < 2 || displayName.length > 120)
     return json({ error: 'Nome inválido.' }, 400, configuredOrigin);
+  if (password.length < 8 || password.length > 128)
+    return json({ error: 'A senha temporária deve ter entre 8 e 128 caracteres.' }, 400, configuredOrigin);
   if (!allowedRoles.has(roleCode))
     return json({ error: 'Perfil inválido.' }, 400, configuredOrigin);
 
   const adminClient = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  let passwordSetupUrl: string | undefined;
-  const siteUrl = Deno.env.get('SITE_URL');
-  if (siteUrl) {
-    try {
-      const redirectUrl = new URL(siteUrl);
-      redirectUrl.pathname = '/auth/update-password';
-      redirectUrl.search = '';
-      redirectUrl.hash = '';
-      passwordSetupUrl = redirectUrl.toString();
-    } catch {
-      return json({ error: 'SITE_URL inválida na configuração da função.' }, 500, configuredOrigin);
-    }
-  }
-  const { data: invitation, error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(
+
+  const { data: createdUser, error: createError } = await adminClient.auth.admin.createUser({
     email,
-    {
-      data: { name: displayName },
-      ...(passwordSetupUrl ? { redirectTo: passwordSetupUrl } : {}),
-    },
-  );
-  if (inviteError || !invitation.user) {
+    password,
+    email_confirm: true,
+    user_metadata: { name: displayName, display_name: displayName },
+  });
+
+  if (createError || !createdUser.user) {
     return json(
-      { error: inviteError?.message ?? 'Não foi possível convidar o usuário.' },
+      { error: createError?.message ?? 'Não foi possível criar o usuário.' },
       400,
       configuredOrigin,
     );
   }
 
   const { error: manageError } = await userClient.rpc('admin_manage_user', {
-    p_target_user_id: invitation.user.id,
+    p_target_user_id: createdUser.user.id,
     p_active: true,
     p_role_codes: [roleCode],
     p_primary_sector_id: primarySectorId,
     p_confirmation: 'CONFIRMAR',
   });
+
   if (manageError) {
     return json(
       {
-        error: 'O convite foi enviado, mas o perfil precisa ser ativado manualmente.',
+        error: 'O usuário foi criado, mas o perfil precisa ser ajustado manualmente.',
         details: manageError.message,
-        userId: invitation.user.id,
+        userId: createdUser.user.id,
       },
       202,
       configuredOrigin,
     );
   }
 
-  return json({ userId: invitation.user.id, email, invited: true }, 201, configuredOrigin);
+  return json({ userId: createdUser.user.id, email, created: true }, 201, configuredOrigin);
 });
