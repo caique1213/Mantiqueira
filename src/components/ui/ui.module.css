@@ -25,7 +25,8 @@
 }
 
 .button:disabled {
-  opacity: 0.5;
+  cursor: not-allowed;
+  opacity: 1;
 }
 
 .button-primary {
@@ -35,6 +36,17 @@
 
 .button-primary:not(:disabled):hover {
   background: var(--button-primary-hover, #ffcb2e);
+}
+
+.button-primary:disabled {
+  border-color: color-mix(in srgb, var(--button-primary-bg, #f6b900) 78%, #000 22%);
+  background: color-mix(in srgb, var(--button-primary-bg, #f6b900) 74%, #000 26%);
+  color: #211600;
+}
+
+.button-primary:disabled svg,
+.button-primary:disabled span {
+  opacity: 1;
 }
 
 .button-secondary {
@@ -48,6 +60,13 @@
   background: var(--button-secondary-hover, rgba(255, 255, 255, 0.1));
 }
 
+.button-secondary:disabled,
+.button-ghost:disabled {
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.16));
+  background: var(--button-secondary-bg, rgba(255, 255, 255, 0.06));
+  color: var(--color-text-muted, #b5bcc7);
+}
+
 .button-ghost {
   background: transparent;
   color: var(--color-text, #f5f7fa);
@@ -56,6 +75,11 @@
 .button-danger {
   background: var(--button-danger-bg, #d84049);
   color: var(--button-danger-text, #fff);
+}
+
+.button-danger:disabled {
+  background: color-mix(in srgb, var(--button-danger-bg, #d84049) 70%, #000 30%);
+  color: #fff;
 }
 
 .button-sm {
