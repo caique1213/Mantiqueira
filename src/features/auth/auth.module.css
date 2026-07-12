@@ -1,0 +1,264 @@
+.loginPage {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(23rem, 0.65fr);
+  background: var(--color-bg, #0b0d10);
+}
+
+.loginVisual {
+  min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.4rem, 4vw, 4rem);
+  isolation: isolate;
+  background:
+    linear-gradient(90deg, rgba(5, 7, 9, 0.35), rgba(5, 7, 9, 0.88)),
+    linear-gradient(180deg, rgba(5, 7, 9, 0.05), rgba(5, 7, 9, 0.8)),
+    url('/images/industrial-machine.png') center 48% / cover;
+}
+
+.loginVisual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 22% 60%, rgba(246, 185, 0, 0.18), transparent 30%);
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.brandMark {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.8rem;
+  background: var(--color-primary, #f6b900);
+  color: var(--color-primary-contrast, #1b1300);
+}
+
+.brandMark svg {
+  width: 1.3rem;
+}
+
+.brand strong,
+.brand small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.brand small {
+  margin-top: 0.15rem;
+  color: #b3bac4;
+  font-size: 0.72rem;
+}
+
+.visualCopy {
+  max-width: 47rem;
+  margin: auto 0;
+  padding: 5rem 0;
+}
+
+.eyebrow {
+  color: var(--color-accent, #f6b900);
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+}
+
+.visualCopy h1 {
+  margin: 1rem 0;
+  font-size: clamp(3.3rem, 7.5vw, 7.8rem);
+  font-weight: 720;
+  letter-spacing: -0.065em;
+  line-height: 0.88;
+}
+
+.visualCopy p {
+  max-width: 42rem;
+  margin: 1.8rem 0 0;
+  color: #bac0c9;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.7;
+}
+
+.trustLine {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: #aeb5bf;
+  font-size: 0.76rem;
+}
+
+.trustLine svg {
+  width: 1rem;
+  color: var(--color-accent, #f6b900);
+}
+
+.loginPanel {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.4rem, 5vw, 4rem);
+  border-left: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  background: var(--color-surface, #111419);
+}
+
+.loginBox {
+  width: min(100%, 27rem);
+}
+
+.loginBox h2 {
+  margin: 0.7rem 0 0.45rem;
+  font-size: clamp(1.7rem, 4vw, 2.35rem);
+  letter-spacing: -0.035em;
+}
+
+.loginBox > p,
+.updateBox > p {
+  margin: 0;
+  color: var(--color-text-muted, #939aa5);
+  line-height: 1.6;
+}
+
+.loginForm {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.fieldWithIcon {
+  position: relative;
+}
+
+.fieldWithIcon > svg {
+  position: absolute;
+  left: 0.82rem;
+  bottom: 0.86rem;
+  z-index: 1;
+  width: 1rem;
+  color: var(--color-text-muted, #939aa5);
+}
+
+.fieldWithIcon input {
+  padding-left: 2.45rem;
+}
+
+.passwordField {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 0.32rem;
+  bottom: 0.25rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted, #939aa5);
+}
+
+.passwordToggle svg {
+  width: 1rem;
+}
+
+.forgotButton {
+  justify-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.82rem;
+}
+
+.forgotButton:hover {
+  color: var(--color-text, #fff);
+}
+
+.formMessage {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 0.7rem;
+  background: var(--color-danger-soft, rgba(255, 107, 116, 0.1));
+  color: var(--color-danger, #ff8189);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.setupPage,
+.simpleAuthPage {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--color-bg, #0b0d10);
+}
+
+.updateBox {
+  width: min(100%, 29rem);
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.2rem, 4vw, 2rem);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-panel, 1.2rem);
+  background: var(--color-surface, #15191f);
+}
+
+.updateBox h1 {
+  margin: 0;
+}
+
+.updateIcon {
+  width: 3.2rem;
+  height: 3.2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--color-primary-soft, rgba(246, 185, 0, 0.12));
+  color: var(--color-primary, #f6b900);
+}
+
+@media (max-width: 900px) {
+  .loginPage {
+    grid-template-columns: 1fr;
+  }
+
+  .loginVisual {
+    min-height: 45dvh;
+    padding: 1.2rem;
+  }
+
+  .visualCopy {
+    padding: 4rem 0 2rem;
+  }
+
+  .visualCopy h1 {
+    font-size: clamp(3rem, 15vw, 5.3rem);
+  }
+
+  .trustLine {
+    display: none;
+  }
+
+  .loginPanel {
+    min-height: 55dvh;
+    padding: 2rem 1.2rem 3rem;
+    border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+    border-left: 0;
+  }
+}

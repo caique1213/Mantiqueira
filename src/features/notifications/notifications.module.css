@@ -1,0 +1,201 @@
+.page {
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 4rem;
+}
+.settingsPanel {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-card);
+  box-shadow: var(--shadow-md);
+}
+.settingsPanel header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.settingsPanel header small {
+  color: var(--color-primary);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.settingsPanel h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1.05rem;
+}
+.settingsPanel header svg {
+  color: var(--color-primary);
+}
+.settingsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.settingsGrid > label {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+}
+.settingsGrid select {
+  min-height: 2.4rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-input);
+  color: var(--color-input-text);
+  padding: 0 0.55rem;
+}
+.settingsGrid input[type='range'] {
+  accent-color: var(--color-primary);
+}
+.toggle {
+  grid-template-columns: auto 1fr !important;
+  align-items: center;
+}
+.toggle input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-primary);
+}
+.toggle span {
+  display: grid;
+  gap: 0.15rem;
+}
+.toggle strong {
+  color: var(--color-text);
+  font-size: 0.7rem;
+}
+.toggle small {
+  color: var(--color-text-muted);
+  font-size: 0.58rem;
+  line-height: 1.45;
+}
+.settingsActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.8rem 0;
+}
+.filterTabs {
+  display: flex;
+  padding: 0.22rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+}
+.filterTabs button {
+  min-height: 2rem;
+  padding: 0 0.8rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.filterTabs button[data-active='true'] {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+.notificationList {
+  display: grid;
+  gap: 0.55rem;
+}
+.notification {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 28%, var(--color-border));
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+}
+.notification[data-read='true'] {
+  border-color: var(--color-border);
+  opacity: 0.72;
+}
+.notificationIcon {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+}
+.notificationIcon svg {
+  width: 1.15rem;
+}
+.notification header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.notification strong {
+  font-size: 0.78rem;
+}
+.notification time {
+  color: var(--color-text-muted);
+  font-size: 0.58rem;
+}
+.notification p {
+  margin: 0.35rem 0;
+  color: var(--color-text-muted);
+  font-size: 0.69rem;
+  line-height: 1.55;
+}
+.notificationActions {
+  display: flex;
+  gap: 0.75rem;
+}
+.notificationActions a,
+.notificationActions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+.notificationActions svg {
+  width: 0.7rem;
+}
+@media (max-width: 850px) {
+  .settingsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+  .toolbar,
+  .notification header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .notification {
+    grid-template-columns: 2rem 1fr;
+  }
+  .notificationIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+}

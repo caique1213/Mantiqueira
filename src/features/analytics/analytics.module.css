@@ -1,0 +1,649 @@
+.page {
+  width: min(100%, var(--layout-max-width, 90rem));
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 4rem;
+}
+
+.generatedAt,
+.scope,
+.noMaintenance {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.generatedAt {
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.generatedAt svg,
+.scope svg,
+.noMaintenance svg {
+  width: 1rem;
+  flex: 0 0 auto;
+}
+
+.spinning {
+  animation: analytics-spin 0.85s linear infinite;
+}
+
+.exportActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filters {
+  margin-top: 0.25rem;
+}
+
+.scope {
+  min-height: 2.8rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0.55rem 0.8rem;
+  border-left: 2px solid var(--color-primary, #f6b900);
+  color: var(--color-text-muted, #9aa2ad);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-primary, #f6b900) 7%, transparent),
+    transparent 65%
+  );
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.scope strong {
+  color: var(--color-text, #f5f7fa);
+}
+
+.scope small {
+  margin-left: auto;
+  color: var(--color-text-muted, #9aa2ad);
+  opacity: 0.78;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border-block: var(--border-width, 1px) solid var(--color-border, #2b323c);
+}
+
+.metricCard {
+  min-width: 0;
+  display: flex;
+  gap: 0.7rem;
+  padding: 1.1rem clamp(0.65rem, 1.2vw, 1rem);
+}
+
+.metricCard + .metricCard {
+  border-left: var(--border-width, 1px) solid var(--color-border, #2b323c);
+}
+
+.metricIcon {
+  width: 2rem;
+  height: 2rem;
+  flex: 0 0 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md, 0.625rem);
+  background: color-mix(
+    in srgb,
+    var(--metric-tone, var(--color-primary, #f6b900)) 10%,
+    transparent
+  );
+  color: var(--metric-tone, var(--color-primary, #f6b900));
+}
+
+.metricIcon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.metricCard[data-tone='info'] {
+  --metric-tone: var(--color-info, #4c9aff);
+}
+.metricCard[data-tone='danger'] {
+  --metric-tone: var(--color-danger, #e5484d);
+}
+.metricCard[data-tone='success'] {
+  --metric-tone: var(--color-success, #35b979);
+}
+.metricCard[data-tone='warning'] {
+  --metric-tone: var(--color-warning, #f39c12);
+}
+
+.metricCard span,
+.metricCard strong,
+.metricCard small {
+  display: block;
+}
+
+.metricCard > div > span {
+  overflow: hidden;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.64rem;
+  font-weight: var(--font-weight-semibold, 650);
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metricCard strong {
+  margin-top: 0.2rem;
+  color: var(--metric-tone, var(--color-text, #f5f7fa));
+  font-size: clamp(1.25rem, 2vw, 1.9rem);
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.metricCard small {
+  margin-top: 0.28rem;
+  overflow: hidden;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.55rem;
+  line-height: 1.35;
+  opacity: 0.72;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noMaintenance {
+  margin-top: 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--color-success, #35b979) 24%, transparent);
+  border-radius: var(--radius-lg, 0.875rem);
+  background: color-mix(in srgb, var(--color-success, #35b979) 7%, transparent);
+  color: var(--color-success, #35b979);
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.primaryGrid,
+.secondaryGrid,
+.inventoryGrid,
+.postureLayout {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.primaryGrid {
+  grid-template-columns: minmax(0, 1.65fr) minmax(19rem, 0.75fr);
+  margin-top: 1rem;
+}
+
+.secondaryGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.75rem;
+}
+
+.chartPanel,
+.brandPanel,
+.riskPanel,
+.postureTablePanel {
+  min-width: 0;
+  border: var(--border-width, 1px) solid var(--color-border, #2b323c);
+  border-radius: var(--radius-xl, 1.25rem);
+  background: var(--color-card, #171c23);
+  box-shadow: var(--shadow-sm, 0 1px 2px rgb(0 0 0 / 0.28));
+}
+
+.chartPanel,
+.brandPanel,
+.riskPanel {
+  padding: clamp(0.9rem, 2vw, 1.25rem);
+}
+
+.panelHeading h2,
+.sectionHeading h2,
+.riskPanel h2 {
+  margin: 0.35rem 0 0;
+  color: var(--color-text, #f5f7fa);
+  letter-spacing: -0.025em;
+}
+
+.panelHeading h2 {
+  font-size: 0.98rem;
+}
+
+.panelHeading p {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.65rem;
+  line-height: 1.45;
+}
+
+.panelEyebrow {
+  color: var(--color-primary, #f6b900);
+  font-size: 0.56rem;
+  font-weight: var(--font-weight-bold, 780);
+  letter-spacing: 0.12em;
+}
+
+.chartLarge {
+  height: 20rem;
+  margin-top: 0.75rem;
+}
+
+.donutLayout {
+  min-height: 20rem;
+  display: grid;
+  grid-template-rows: minmax(11rem, 1fr) auto;
+  align-items: center;
+}
+
+.chartDonut {
+  height: 13rem;
+  position: relative;
+}
+
+.donutTotal {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  display: grid;
+  text-align: center;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.donutTotal strong {
+  color: var(--color-text, #f5f7fa);
+  font-size: 1.45rem;
+  letter-spacing: -0.04em;
+}
+
+.donutTotal span {
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.55rem;
+}
+
+.chartLegend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chartLegend li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.62rem;
+}
+
+.chartLegend i {
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+}
+
+.chartLegend span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chartLegend strong {
+  color: var(--color-text, #f5f7fa);
+}
+
+.chartBars {
+  height: 14rem;
+  margin-top: 0.65rem;
+}
+
+.riskPanel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 0.75rem;
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      color-mix(in srgb, var(--color-warning, #f39c12) 10%, transparent),
+      transparent 45%
+    ),
+    var(--color-card, #171c23);
+}
+
+.riskIcon {
+  width: 2.65rem;
+  height: 2.65rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg, 0.875rem);
+  background: color-mix(in srgb, var(--color-warning, #f39c12) 12%, transparent);
+  color: var(--color-warning, #f39c12);
+}
+
+.riskIcon svg {
+  width: 1.15rem;
+}
+
+.riskPanel h2 {
+  font-size: 0.98rem;
+}
+
+.riskList {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0;
+  margin: 0.45rem 0 0;
+}
+
+.riskList > div {
+  min-height: 2.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid var(--color-border, #2b323c);
+}
+
+.riskList dt {
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.66rem;
+}
+
+.riskList dd {
+  margin: 0;
+  color: var(--color-text, #f5f7fa);
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-bold, 780);
+}
+
+.sectionBlock {
+  margin-top: clamp(2.5rem, 5vw, 4.25rem);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.sectionHeading h2 {
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+}
+
+.sectionHeading p {
+  max-width: 26rem;
+  margin: 0;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.inventoryGrid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+}
+
+.chartInventory {
+  height: 21rem;
+  margin-top: 0.7rem;
+}
+
+.brandPanel,
+.postureTablePanel {
+  overflow: hidden;
+}
+
+.brandPanel .panelHeading {
+  margin-bottom: 0.85rem;
+}
+
+.tableScroll {
+  overflow-x: auto;
+}
+
+.tableScroll table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+}
+
+.tableScroll th,
+.tableScroll td {
+  padding: 0.72rem 0.65rem;
+  border-bottom: 1px solid var(--color-border, #2b323c);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.tableScroll thead th {
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.54rem;
+  font-weight: var(--font-weight-bold, 780);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tableScroll th:first-child,
+.tableScroll td:first-child {
+  text-align: left;
+}
+
+.tableScroll tbody th {
+  color: var(--color-text, #f5f7fa);
+  font-weight: var(--font-weight-semibold, 650);
+}
+
+.tableScroll td {
+  color: var(--color-text-muted, #9aa2ad);
+}
+
+.tableScroll strong[data-risk='true'] {
+  color: var(--color-warning, #f39c12);
+}
+
+.postureLayout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(24rem, 0.85fr);
+}
+
+.chartPostures {
+  height: 28rem;
+}
+
+.postureTablePanel {
+  padding: 0.5rem 0.6rem;
+}
+
+.chartEmpty {
+  min-height: 12rem;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  color: var(--color-text-muted, #9aa2ad);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.chartEmpty svg {
+  width: 1.4rem;
+  color: var(--color-primary, #f6b900);
+  opacity: 0.75;
+}
+
+@keyframes analytics-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .kpiGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .metricCard:nth-child(4) {
+    border-left: 0;
+  }
+
+  .metricCard:nth-child(n + 4) {
+    border-top: 1px solid var(--color-border, #2b323c);
+  }
+
+  .secondaryGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .riskPanel {
+    grid-column: 1 / -1;
+  }
+
+  .riskList {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .riskList > div {
+    padding: 0 0.75rem;
+    border: 0;
+    border-left: 1px solid var(--color-border, #2b323c);
+  }
+
+  .riskList > div:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .primaryGrid,
+  .inventoryGrid,
+  .postureLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .scope {
+    flex-wrap: wrap;
+  }
+
+  .scope small {
+    width: 100%;
+    margin-left: 1.45rem;
+  }
+
+  .donutLayout {
+    grid-template-columns: minmax(11rem, 0.8fr) minmax(12rem, 1fr);
+    grid-template-rows: 1fr;
+  }
+
+  .chartPostures {
+    height: 24rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding-inline: 1rem;
+  }
+
+  .exportActions {
+    width: 100%;
+  }
+
+  .exportActions button {
+    flex: 1;
+  }
+
+  .scope small {
+    margin-left: 0;
+  }
+
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metricCard:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .metricCard:nth-child(even) {
+    border-left: 1px solid var(--color-border, #2b323c);
+  }
+
+  .metricCard:nth-child(n + 3) {
+    border-top: 1px solid var(--color-border, #2b323c);
+  }
+
+  .metricCard {
+    padding: 0.9rem 0.55rem;
+  }
+
+  .metricIcon {
+    display: none;
+  }
+
+  .primaryGrid,
+  .secondaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartLarge {
+    height: 17rem;
+  }
+
+  .donutLayout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .riskList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .riskList > div,
+  .riskList > div:first-child {
+    padding: 0 0.45rem;
+    border-left: 0;
+    border-top: 1px solid var(--color-border, #2b323c);
+  }
+
+  .sectionHeading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .sectionHeading p {
+    text-align: left;
+  }
+
+  .chartInventory {
+    height: 18rem;
+  }
+}
+
+@media print {
+  .page {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    color: #111;
+  }
+
+  .filters,
+  .exportActions {
+    display: none;
+  }
+
+  .primaryGrid,
+  .secondaryGrid,
+  .inventoryGrid,
+  .postureLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .chartPanel,
+  .brandPanel,
+  .riskPanel,
+  .postureTablePanel,
+  .sectionBlock {
+    break-inside: avoid;
+  }
+}

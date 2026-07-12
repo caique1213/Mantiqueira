@@ -1,0 +1,31 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.72rem;
+}
+
+.pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pageNumber {
+  min-width: 4rem;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .pagination > div {
+    justify-content: space-between;
+  }
+}

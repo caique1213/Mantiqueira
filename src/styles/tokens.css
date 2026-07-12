@@ -1,0 +1,159 @@
+:root {
+  --color-bg: #0b0d10;
+  --color-bg-secondary: #101319;
+  --color-surface: #15191f;
+  --color-surface-raised: #1c222a;
+  --color-card: #171c23;
+  --color-menu: #0e1116;
+  --color-header: #101319;
+  --color-footer: #0b0d10;
+  --color-text: #f5f7fa;
+  --color-text-muted: #9aa2ad;
+  --color-border: #2b323c;
+  --color-input: #10151b;
+  --color-input-text: #f5f7fa;
+  --color-input-border: #39424e;
+  --color-icon: #d3d8df;
+  --color-badge: #2b2411;
+  --color-badge-text: #ffe18a;
+  --color-marker: #f6b900;
+
+  --color-primary: #f6b900;
+  --color-primary-contrast: #171104;
+  --color-secondary: #d28b00;
+  --color-secondary-contrast: #1c1200;
+  --color-accent: #ffcb3d;
+  --color-danger: #e5484d;
+  --color-danger-contrast: #ffffff;
+  --color-success: #35b979;
+  --color-warning: #f39c12;
+  --color-info: #4c9aff;
+  --color-button-primary: #f6b900;
+  --color-button-primary-text: #171104;
+  --color-button-primary-hover: #ffd248;
+  --color-button-secondary: #252c35;
+  --color-button-secondary-text: #f5f7fa;
+  --color-button-secondary-hover: #343d49;
+  --color-button-danger: #c93d42;
+  --color-button-danger-text: #ffffff;
+  --color-button-danger-hover: #e5484d;
+
+  --status-awaiting: #f6b900;
+  --status-in-progress: #4c9aff;
+  --status-waiting-part: #ef8b2c;
+  --status-resolved: #35b979;
+  --status-cancelled: #7e8794;
+  --priority-low: #7e8794;
+  --priority-normal: #4c9aff;
+  --priority-high: #f39c12;
+  --priority-critical: #e5484d;
+
+  --map-empty: #11151a;
+  --map-posture: #252c35;
+  --map-active: #f6b900;
+  --map-highlight: #ffd248;
+  --map-selected: #ffffff;
+  --map-heat-low: #265b49;
+  --map-heat-medium: #a36b12;
+  --map-heat-high: #c93d42;
+
+  --asset-motor: #f6b900;
+  --asset-reducer: #aeb5bf;
+  --battery-cage: #20252c;
+  --battery-nylon: #3e8fea;
+  --battery-white-conveyor: #e98224;
+  --battery-feed-cart: #8b939e;
+  --battery-elevator: #d73f44;
+
+  --font-family-body: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-family-heading: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-scale: 1;
+  --font-size-title: 2.25rem;
+  --font-size-text: 1rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 650;
+  --font-weight-bold: 780;
+  --line-height-tight: 1.18;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --control-height: 2.75rem;
+  --touch-target: 2.75rem;
+  --layout-max-width: 90rem;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-pill: 999rem;
+  --border-width: 1px;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.28);
+  --shadow-md: 0 12px 30px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 24px 70px rgb(0 0 0 / 0.42);
+  --backdrop-blur: 14px;
+  --surface-opacity: 0.96;
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 360ms;
+}
+
+html[data-theme-id] {
+  color-scheme: dark;
+  background: var(--color-bg);
+}
+
+html[data-theme-mode='light'] {
+  color-scheme: light;
+}
+
+html[data-theme-mode='high-contrast'] {
+  color-scheme: dark;
+}
+
+html[data-theme-id] body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: calc(var(--font-size-text) * var(--font-scale));
+  line-height: var(--line-height-normal);
+  transition:
+    background-color var(--motion-normal) ease,
+    color var(--motion-normal) ease;
+}
+
+html[data-theme-id] :focus-visible {
+  outline-color: var(--color-primary);
+}
+
+html.low-vision-mode * {
+  letter-spacing: 0.01em;
+}
+
+html.low-vision-mode button,
+html.low-vision-mode input,
+html.low-vision-mode select,
+html.low-vision-mode textarea,
+html.low-vision-mode a {
+  min-height: var(--touch-target);
+}
+
+html[data-theme-id] ::selection {
+  color: var(--color-primary-contrast);
+  background: var(--color-primary);
+}

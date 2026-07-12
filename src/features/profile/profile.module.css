@@ -1,0 +1,171 @@
+.page {
+  max-width: 88rem;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 4rem;
+}
+.identityHero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(120deg, var(--color-surface-raised), var(--color-card));
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.identityHero small,
+.panel header small {
+  color: var(--color-primary);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+.identityHero h1 {
+  margin: 0.2rem 0;
+  font-size: 1.3rem;
+}
+.identityHero p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+}
+.activeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.4rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-success) 12%, transparent);
+  color: var(--color-success);
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+.activeBadge svg {
+  width: 0.85rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+.panel {
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-card);
+}
+.panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.panel h2 {
+  margin: 0.2rem 0 0;
+  font-size: 1rem;
+}
+.panel header > svg {
+  color: var(--color-primary);
+  width: 1.15rem;
+}
+.form {
+  display: grid;
+  gap: 0.75rem;
+}
+.form button {
+  justify-self: end;
+}
+
+.toggleLine {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.toggleLine input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-top: 0.15rem;
+  accent-color: var(--color-primary);
+}
+
+.toggleLine strong,
+.toggleLine small {
+  display: block;
+}
+
+.toggleLine strong {
+  font-size: 0.78rem;
+}
+
+.toggleLine small {
+  margin-top: 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.64rem;
+  line-height: 1.45;
+}
+.accessList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+.accessList > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.accessList dt {
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+}
+.accessList dd {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  text-align: right;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.accessList svg {
+  width: 0.75rem;
+}
+.accessNote {
+  margin: 0.75rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .identityHero {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .activeBadge {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,413 @@
+.button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control, 0.75rem);
+  font-weight: 750;
+  line-height: 1;
+  transition:
+    transform 160ms ease,
+    background 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+.button svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+.button:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+}
+
+.button-primary {
+  background: var(--button-primary-bg, #f6b900);
+  color: var(--button-primary-text, #1a1300);
+}
+
+.button-primary:not(:disabled):hover {
+  background: var(--button-primary-hover, #ffcb2e);
+}
+
+.button-secondary {
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.14));
+  background: var(--button-secondary-bg, rgba(255, 255, 255, 0.06));
+  color: var(--color-text, #f5f7fa);
+}
+
+.button-secondary:not(:disabled):hover,
+.button-ghost:not(:disabled):hover {
+  background: var(--button-secondary-hover, rgba(255, 255, 255, 0.1));
+}
+
+.button-ghost {
+  background: transparent;
+  color: var(--color-text, #f5f7fa);
+}
+
+.button-danger {
+  background: var(--button-danger-bg, #d84049);
+  color: var(--button-danger-text, #fff);
+}
+
+.button-sm {
+  min-height: 36px;
+  padding: 0.5rem 0.72rem;
+  font-size: 0.82rem;
+}
+
+.button-md {
+  padding: 0.72rem 1rem;
+  font-size: 0.9rem;
+}
+
+.button-lg {
+  min-height: 50px;
+  padding: 0.9rem 1.2rem;
+  font-size: 1rem;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.iconButton {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-control, 0.75rem);
+  background: var(--color-surface-muted, rgba(255, 255, 255, 0.05));
+  color: var(--color-text, #f5f7fa);
+}
+
+.iconButton:hover {
+  border-color: var(--color-border-strong, rgba(255, 255, 255, 0.18));
+  background: var(--color-surface-hover, rgba(255, 255, 255, 0.09));
+}
+
+.iconButton svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.iconDanger {
+  color: var(--color-danger, #ff6b74);
+}
+
+.tooltip {
+  z-index: 1000;
+  max-width: 15rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 0.5rem;
+  background: var(--color-surface-raised, #1a1f27);
+  color: var(--color-text, #f5f7fa);
+  font-size: 0.75rem;
+  box-shadow: var(--shadow-md, 0 12px 30px rgba(0, 0, 0, 0.32));
+}
+
+.tooltipArrow {
+  fill: var(--color-surface-raised, #1a1f27);
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fieldLabel {
+  color: var(--color-text, #f5f7fa);
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.input,
+.confirmField input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.72rem 0.82rem;
+  border: 1px solid var(--input-border, rgba(255, 255, 255, 0.12));
+  border-radius: var(--radius-control, 0.75rem);
+  background: var(--input-bg, rgba(4, 6, 8, 0.55));
+  color: var(--input-text, #f5f7fa);
+  outline: none;
+}
+
+.input:focus,
+.confirmField input:focus {
+  border-color: var(--color-focus, #f6b900);
+  box-shadow: 0 0 0 3px var(--color-focus-ring, rgba(246, 185, 0, 0.18));
+}
+
+.inputError {
+  border-color: var(--color-danger, #ff6b74);
+}
+
+.fieldHint,
+.fieldError {
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.fieldHint {
+  color: var(--color-text-muted, #939aa5);
+}
+
+.fieldError {
+  color: var(--color-danger, #ff8189);
+}
+
+.statePanel,
+.stateCompact {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  text-align: center;
+  color: var(--color-text-muted, #939aa5);
+}
+
+.statePanel {
+  min-height: 21rem;
+  place-content: center;
+  padding: 2rem;
+}
+
+.stateCompact {
+  padding: 1.2rem;
+}
+
+.stateIcon {
+  width: 3.4rem;
+  height: 3.4rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1rem;
+  background: var(--color-surface-muted, rgba(255, 255, 255, 0.055));
+  color: var(--color-accent, #f6b900);
+}
+
+.stateIcon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.statePanel h2,
+.stateCompact h2 {
+  margin: 0;
+  color: var(--color-text, #f5f7fa);
+  font-size: 1.05rem;
+}
+
+.statePanel p,
+.stateCompact p {
+  max-width: 35rem;
+  margin: 0.45rem 0 0;
+  line-height: 1.6;
+}
+
+.stateActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.skeleton {
+  display: block;
+  border-radius: 0.65rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted, rgba(255, 255, 255, 0.05)) 20%,
+    var(--color-surface-hover, rgba(255, 255, 255, 0.1)) 50%,
+    var(--color-surface-muted, rgba(255, 255, 255, 0.05)) 80%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.4s infinite linear;
+}
+
+.pageSkeleton {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.skeletonEyebrow {
+  width: 8rem;
+  height: 0.75rem;
+}
+
+.skeletonTitle {
+  width: min(28rem, 75%);
+  height: 2.8rem;
+  margin-top: 1rem;
+}
+
+.skeletonLine {
+  width: min(38rem, 90%);
+  height: 1rem;
+  margin-top: 1rem;
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.skeletonCard {
+  height: 12rem;
+}
+
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 150ms ease;
+}
+
+.dialogContent {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 101;
+  width: min(34rem, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
+  overflow: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border-strong, rgba(255, 255, 255, 0.14));
+  border-radius: var(--radius-panel, 1rem);
+  background: var(--color-surface-raised, #15191f);
+  box-shadow: var(--shadow-lg, 0 30px 90px rgba(0, 0, 0, 0.5));
+  transform: translate(-50%, -50%);
+  animation: dialogIn 170ms ease;
+}
+
+.dialogHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.85rem;
+}
+
+.dialogHeader h2 {
+  margin: 0.15rem 0 0;
+  font-size: 1.12rem;
+}
+
+.dialogIcon,
+.dialogDangerIcon {
+  width: 2.6rem;
+  height: 2.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 0.75rem;
+}
+
+.dialogIcon {
+  background: var(--color-warning-soft, rgba(246, 185, 0, 0.12));
+  color: var(--color-warning, #f6b900);
+}
+
+.dialogDangerIcon {
+  background: var(--color-danger-soft, rgba(255, 107, 116, 0.12));
+  color: var(--color-danger, #ff6b74);
+}
+
+.dialogDescription {
+  margin-top: 0.55rem;
+  color: var(--color-text-muted, #939aa5);
+  line-height: 1.6;
+}
+
+.confirmField {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.82rem;
+}
+
+.confirmField input {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  margin-top: 1.35rem;
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.98);
+  }
+}
+
+@media (max-width: 700px) {
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dialogContent {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-height: 90dvh;
+    border-radius: 1.2rem 1.2rem 0 0;
+    transform: translateX(-50%);
+    animation: sheetIn 180ms ease;
+  }
+
+  .dialogActions {
+    flex-direction: column-reverse;
+  }
+
+  .dialogActions button {
+    width: 100%;
+  }
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 2rem);
+  }
+}

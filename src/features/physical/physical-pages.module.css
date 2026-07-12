@@ -1,0 +1,18 @@
+.mapPage,
+.posturePage {
+  max-width: 100rem;
+  margin: 0 auto;
+  padding: 0 clamp(0.75rem, 2.5vw, 1.75rem) 3rem;
+}
+
+.mapMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.66rem;
+}
+
+.mapMeta svg {
+  width: 0.85rem;
+}

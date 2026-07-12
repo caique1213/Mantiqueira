@@ -1,0 +1,241 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: start center;
+  padding-top: min(12vh, 7rem);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.panel {
+  position: relative;
+  width: min(44rem, calc(100vw - 1.5rem));
+  max-height: min(75dvh, 46rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border-strong, rgba(255, 255, 255, 0.14));
+  border-radius: var(--radius-panel, 1rem);
+  background: var(--color-surface-raised, #15191f);
+  box-shadow: var(--shadow-lg, 0 30px 90px rgba(0, 0, 0, 0.55));
+}
+
+.inputRow {
+  min-height: 4.3rem;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+}
+
+.inputRow > svg {
+  width: 1.2rem;
+  color: var(--color-primary, #f6b900);
+}
+
+.inputRow input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--color-text, #fff);
+  outline: 0;
+}
+
+.inputRow > button,
+.footer kbd {
+  padding: 0.3rem 0.45rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.62rem;
+}
+
+.results {
+  min-height: 16rem;
+  overflow: auto;
+  flex: 1;
+  padding: 0.65rem;
+}
+
+.message,
+.error {
+  min-height: 14rem;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 1.5rem;
+  color: var(--color-text-subtle, #737b86);
+  text-align: center;
+}
+
+.message > svg {
+  width: 1.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--color-primary, #f6b900);
+}
+
+.message strong,
+.error strong {
+  color: var(--color-text, #fff);
+  font-size: 0.85rem;
+}
+
+.message span,
+.error span {
+  max-width: 31rem;
+  font-size: 0.7rem;
+  line-height: 1.55;
+}
+
+.error button {
+  margin-top: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border-strong, rgba(255, 255, 255, 0.13));
+  border-radius: 0.55rem;
+  background: var(--color-surface-muted, rgba(255, 255, 255, 0.05));
+  color: var(--color-text, #fff);
+  font-size: 0.7rem;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.7rem;
+}
+
+.loading span {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--color-border-strong, rgba(255, 255, 255, 0.15));
+  border-top-color: var(--color-primary, #f6b900);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.group + .group {
+  margin-top: 0.65rem;
+}
+
+.group header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.55rem;
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.6rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.group header span {
+  letter-spacing: normal;
+}
+
+.group > button {
+  width: 100%;
+  min-height: 3.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: 0.65rem;
+  background: transparent;
+  color: var(--color-text, #fff);
+  text-align: left;
+}
+
+.group > button:hover,
+.group > button:focus-visible {
+  background: var(--color-surface-hover, rgba(255, 255, 255, 0.055));
+}
+
+.resultIcon {
+  width: 2.45rem;
+  height: 2.45rem;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: var(--color-primary-soft, rgba(246, 185, 0, 0.08));
+  color: var(--color-primary, #f6b900);
+}
+
+.resultIcon svg {
+  width: 1rem;
+}
+
+.resultCopy {
+  min-width: 0;
+  flex: 1;
+}
+
+.resultCopy strong,
+.resultCopy small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resultCopy strong {
+  font-size: 0.76rem;
+}
+
+.resultCopy small {
+  margin-top: 0.22rem;
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.65rem;
+}
+
+.enter {
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.7rem;
+}
+
+.footer {
+  min-height: 2.6rem;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.85rem;
+  border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  color: var(--color-text-subtle, #737b86);
+  font-size: 0.62rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 700px) {
+  .overlay {
+    padding-top: 0;
+  }
+
+  .panel {
+    width: 100%;
+    max-height: 88dvh;
+    border-radius: 0 0 1rem 1rem;
+  }
+}
