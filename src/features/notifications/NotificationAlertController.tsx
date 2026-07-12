@@ -27,6 +27,7 @@ export function NotificationAlertController() {
   const profileId = auth.user?.id ?? '';
   const queryClient = useQueryClient();
   const seenIds = useRef<Set<string> | null>(null);
+  const alarmTimer = useRef<number | null>(null);
 
   const feed = useQuery({
     queryKey: ['notification-alert-feed', profileId],
@@ -130,6 +131,48 @@ export function NotificationAlertController() {
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [feed.data, settings.data]);
+
+  useEffect(() => {
+    const configuration = settings.data;
+    const preferences = configuration?.preferences;
+    const unreadWorkOrderNotifications = feed.data?.filter((item) => item.workOrderId) ?? [];
+
+    if (alarmTimer.current !== null) {
+      window.clearInterval(alarmTimer.current);
+      alarmTimer.current = null;
+    }
+
+    if (
+      !unreadWorkOrderNotifications.length ||
+      !configuration ||
+      !preferences?.enabled ||
+      !preferences.sound_enabled ||
+      isQuietTime(preferences.quiet_hours)
+    ) {
+      return;
+    }
+
+    const sound = configuration.sounds.find((item) => item.id === preferences.sound_preset_id);
+    if (!sound) return;
+
+    const playAlarm = () => {
+      try {
+        previewNotificationSound(sound.audio_key, preferences.volume);
+      } catch {
+        // Navegadores podem bloquear áudio até a primeira interação do usuário.
+      }
+    };
+
+    playAlarm();
+    alarmTimer.current = window.setInterval(playAlarm, 4_500);
+
+    return () => {
+      if (alarmTimer.current !== null) {
+        window.clearInterval(alarmTimer.current);
+        alarmTimer.current = null;
+      }
+    };
   }, [feed.data, settings.data]);
 
   return null;

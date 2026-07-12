@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -18,7 +18,6 @@ import {
   Play,
   RotateCcw,
   Send,
-  UserCheck,
   UserRound,
   Wrench,
 } from 'lucide-react';
@@ -30,6 +29,7 @@ import { PageSkeleton } from '../../components/ui/Skeleton';
 import { StatePanel } from '../../components/ui/StatePanel';
 import { normalizeError } from '../../lib/errors';
 import { useAuth } from '../auth/AuthProvider';
+import { acknowledgeMany, fetchNotifications } from '../notifications/notifications.api';
 import {
   addNeededItem,
   addWorkOrderComment,
@@ -93,17 +93,10 @@ export function WorkOrderDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['work-orders'] }),
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
       queryClient.invalidateQueries({ queryKey: ['posture-map'] }),
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread', auth.user?.id] }),
+      queryClient.invalidateQueries({ queryKey: ['notification-alert-feed', auth.user?.id] }),
     ]);
   };
-
-  const assignMutation = useMutation({
-    mutationFn: () => assignWorkOrder(workOrderId),
-    onSuccess: async () => {
-      toast.success('OS assumida com sucesso.');
-      await refresh();
-    },
-    onError: (error) => toast.error(normalizeError(error).message),
-  });
 
   const transitionMutation = useMutation({
     mutationFn: (input: TransitionWorkOrderInput) => transitionWorkOrder(input),
@@ -190,6 +183,32 @@ export function WorkOrderDetailPage() {
   const assignedToMe = summary?.assigned_to === auth.user?.id;
   const operationallyAssigned = assignedToMe || auth.hasPermission('work_orders.assign.any');
 
+  useEffect(() => {
+    const profileId = auth.user?.id;
+    if (!profileId || !workOrderId) return;
+    let cancelled = false;
+    void fetchNotifications(profileId, true)
+      .then(async (items) => {
+        if (cancelled) return;
+        const matching = items
+          .filter((item) => item.workOrderId === workOrderId)
+          .map((item) => item.id);
+        if (!matching.length) return;
+        await acknowledgeMany(matching);
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread', profileId] }),
+          queryClient.invalidateQueries({ queryKey: ['notification-alert-feed', profileId] }),
+          queryClient.invalidateQueries({ queryKey: ['notifications', profileId] }),
+        ]);
+      })
+      .catch(() => {
+        // Se marcar como lida falhar, a tela da OS continua funcionando normalmente.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [auth.user?.id, queryClient, workOrderId]);
+
   const timeline = useMemo(() => {
     if (!detail.data) return [];
     return [...detail.data.events].sort((a, b) => b.occurred_at.localeCompare(a.occurred_at));
@@ -234,6 +253,14 @@ export function WorkOrderDetailPage() {
 
   const submitTransition = async () => {
     if (!action) return;
+    if (
+      action === 'start' &&
+      summary?.semantic_state === 'awaiting' &&
+      !operationallyAssigned &&
+      canAssign
+    ) {
+      await assignWorkOrder(workOrderId);
+    }
     const targetStatusCode =
       action === 'start'
         ? 'in_progress'
@@ -317,21 +344,13 @@ export function WorkOrderDetailPage() {
             <strong>{summary.assigned_to_name ?? 'Ainda não atribuída'}</strong>
           </div>
           <div className={styles.actionButtons}>
-            {canAssign && !assignedToMe && (
-              <Button
-                variant="secondary"
-                loading={assignMutation.isPending}
-                leadingIcon={<UserCheck />}
-                onClick={() => void assignMutation.mutateAsync()}
-              >
-                Assumir OS
-              </Button>
-            )}
-            {canExecute && operationallyAssigned && summary.semantic_state === 'awaiting' && (
+            {canExecute &&
+              (operationallyAssigned || canAssign) &&
+              summary.semantic_state === 'awaiting' && (
               <Button leadingIcon={<Play />} onClick={() => openAction('start')}>
-                Iniciar
+                Iniciar atendimento
               </Button>
-            )}
+              )}
             {canExecute && operationallyAssigned && summary.semantic_state === 'waiting_part' && (
               <Button leadingIcon={<Play />} onClick={() => openAction('start')}>
                 Retomar
@@ -359,10 +378,10 @@ export function WorkOrderDetailPage() {
               </Button>
             )}
           </div>
-          {canAssign && !operationallyAssigned && (
+          {canExecute && canAssign && !operationallyAssigned && (
             <p className={styles.assignmentHint}>
-              Assuma esta OS para liberar as ações de atendimento: iniciar, aguardar peça,
-              concluir ou registrar o andamento.
+              Ao iniciar, a OS será assumida automaticamente no seu nome e o alarme será encerrado
+              para esta ordem.
             </p>
           )}
         </section>

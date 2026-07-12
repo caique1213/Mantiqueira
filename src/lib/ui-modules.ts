@@ -1,6 +1,7 @@
 import {
   BarChart3,
   Boxes,
+  ClipboardPlus,
   ClipboardList,
   Factory,
   Home,
@@ -14,6 +15,7 @@ const iconRegistry: Record<string, LucideIcon> = {
   house: Home,
   home: Home,
   'clipboard-list': ClipboardList,
+  'clipboard-plus': ClipboardPlus,
   map: Map,
   factory: Factory,
   boxes: Boxes,

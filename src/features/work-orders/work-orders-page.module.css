@@ -101,6 +101,17 @@
   line-height: 1.35;
 }
 
+.panelNotice {
+  grid-column: 1 / -1;
+  padding: 0.85rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-panel, 1rem);
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  background: var(--color-surface);
+}
+
 .quickFilters {
   display: flex;
   flex-wrap: wrap;

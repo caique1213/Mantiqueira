@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -27,11 +27,36 @@ import { fetchWorkOrderCatalogs, fetchWorkOrders } from './work-orders.api';
 import styles from './work-orders-page.module.css';
 
 const PAGE_SIZE = 18;
-const RECEIVING_PANELS = [
-  { code: '', label: 'Geral', description: 'Todas as OS que você tem permissão para receber' },
-  { code: 'eletrica', label: 'Elétrica', description: 'Painel dos eletricistas' },
-  { code: 'mecanica', label: 'Mecânica', description: 'Painel da mecânica' },
-  { code: 'civil', label: 'Civil', description: 'Painel da manutenção civil' },
+const RECEIVING_PANELS: Array<{
+  code: string;
+  label: string;
+  description: string;
+  permission: string | null;
+}> = [
+  {
+    code: '',
+    label: 'Geral',
+    description: 'Todas as OS da operação',
+    permission: 'work_orders.view.all',
+  },
+  {
+    code: 'eletrica',
+    label: 'Elétrica',
+    description: 'Painel exclusivo dos eletricistas',
+    permission: 'work_orders.view.electrical',
+  },
+  {
+    code: 'mecanica',
+    label: 'Mecânica',
+    description: 'Painel exclusivo da mecânica',
+    permission: 'work_orders.view.mechanical',
+  },
+  {
+    code: 'civil',
+    label: 'Civil',
+    description: 'Painel exclusivo da manutenção civil',
+    permission: 'work_orders.view.civil',
+  },
 ] as const;
 
 export function WorkOrdersPage() {
@@ -47,6 +72,13 @@ export function WorkOrdersPage() {
   const mine = searchParams.get('mine') === '1';
   const openedByMe = searchParams.get('openedByMe') === '1';
   const onlyOpen = searchParams.get('open') !== '0';
+  const visiblePanels = useMemo(
+    () =>
+      RECEIVING_PANELS.filter(
+        (panel) => !panel.permission || auth.hasPermission(panel.permission),
+      ),
+    [auth],
+  );
 
   const catalogs = useQuery({ queryKey: ['work-order-catalogs'], queryFn: fetchWorkOrderCatalogs });
   const list = useQuery({
@@ -87,6 +119,20 @@ export function WorkOrdersPage() {
       return params;
     });
   }, [debouncedSearch, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!visiblePanels.length) return;
+    const canSeeSelected = visiblePanels.some((panel) => panel.code === sector);
+    if (canSeeSelected) return;
+    setSearchParams((params) => {
+      params.set('sector', visiblePanels[0]!.code);
+      params.set('open', '1');
+      params.delete('mine');
+      params.delete('openedByMe');
+      params.delete('page');
+      return params;
+    });
+  }, [sector, setSearchParams, visiblePanels]);
 
   function setFilter(key: string, value: string) {
     setSearchParams((params) => {
@@ -199,7 +245,7 @@ export function WorkOrdersPage() {
       />
 
       <section className={styles.receivingPanels} aria-label="Painéis de recebimento de OS">
-        {RECEIVING_PANELS.map((panel) => (
+        {visiblePanels.map((panel) => (
           <button
             key={panel.label}
             type="button"
@@ -213,6 +259,12 @@ export function WorkOrdersPage() {
             <small>{panel.description}</small>
           </button>
         ))}
+        {!visiblePanels.length && (
+          <div className={styles.panelNotice}>
+            Seu perfil não recebe painel técnico. Use “Minhas solicitações” para acompanhar as OS
+            que você abriu.
+          </div>
+        )}
       </section>
 
       <FilterBar
