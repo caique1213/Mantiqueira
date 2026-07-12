@@ -32,7 +32,29 @@ const LIGHT_PATCH: Record<string, string> = {
   '--map-posture': '#FFF9EA',
 };
 
-const DARK_PATCH_KEYS = Object.keys(LIGHT_PATCH);
+const DARK_PATCH: Record<string, string> = {
+  '--color-bg': '#0B0D10',
+  '--color-bg-secondary': '#101319',
+  '--color-surface': '#15191F',
+  '--color-surface-raised': '#1C222A',
+  '--color-card': '#171C23',
+  '--color-menu': '#0E1116',
+  '--color-header': '#101319',
+  '--color-footer': '#0B0D10',
+  '--color-text': '#F5F7FA',
+  '--color-text-muted': '#9AA2AD',
+  '--color-text-subtle': '#737B86',
+  '--color-border': '#2B323C',
+  '--color-input': '#10151B',
+  '--color-input-text': '#F5F7FA',
+  '--color-input-border': '#39424E',
+  '--color-button-secondary': '#252C35',
+  '--color-button-secondary-text': '#F5F7FA',
+  '--map-empty': '#11151A',
+  '--map-posture': '#252C35',
+};
+
+const THEME_PATCH_KEYS = Array.from(new Set([...Object.keys(LIGHT_PATCH), ...Object.keys(DARK_PATCH)]));
 
 const LOW_VISION_PATCH: Record<string, string> = {
   '--font-scale': '1.14',
@@ -84,10 +106,11 @@ export function applyPersonalPreferences(preferences: PersonalPreferences) {
   root.dataset.personalTheme = preferences.themeMode;
   root.dataset.lowVision = String(preferences.lowVision);
 
-  if (preferences.themeMode === 'light') {
-    Object.entries(LIGHT_PATCH).forEach(([key, value]) => root.style.setProperty(key, value));
+  if (preferences.themeMode === 'light' || preferences.themeMode === 'dark') {
+    const patch = preferences.themeMode === 'light' ? LIGHT_PATCH : DARK_PATCH;
+    Object.entries(patch).forEach(([key, value]) => root.style.setProperty(key, value));
   } else {
-    DARK_PATCH_KEYS.forEach((key) => root.style.removeProperty(key));
+    THEME_PATCH_KEYS.forEach((key) => root.style.removeProperty(key));
   }
 
   if (preferences.lowVision) {

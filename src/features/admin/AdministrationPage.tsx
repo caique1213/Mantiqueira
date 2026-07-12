@@ -33,9 +33,9 @@ import { CatalogsPanel } from './CatalogsPanel';
 
 const tabs = [
   { value: 'general', label: 'Geral', icon: Settings2 },
-  { value: 'appearance', label: 'AparÃªncia', icon: Palette },
-  { value: 'users', label: 'UsuÃ¡rios', icon: UserCog },
-  { value: 'catalogs', label: 'CatÃ¡logos', icon: BookOpenCheck },
+  { value: 'appearance', label: 'Aparência', icon: Palette },
+  { value: 'users', label: 'Usuários', icon: UserCog },
+  { value: 'catalogs', label: 'Catálogos', icon: BookOpenCheck },
   { value: 'audit', label: 'Auditoria', icon: History },
 ] as const;
 
@@ -63,13 +63,13 @@ export function AdministrationPage() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="ADMINISTRAÃ‡ÃƒO"
+        eyebrow="ADMINISTRAÇÃO"
         title="Controle do sistema"
-        description="ConfiguraÃ§Ãµes profundas com validaÃ§Ã£o, histÃ³rico e proteÃ§Ã£o das regras fÃ­sicas nÃ£o negociÃ¡veis."
+        description="Configurações profundas com validação, histórico e proteção das regras físicas não negociáveis."
       />
 
       <Tabs.Root className={styles.tabs} defaultValue="general">
-        <Tabs.List className={styles.tabList} aria-label="SeÃ§Ãµes administrativas">
+        <Tabs.List className={styles.tabList} aria-label="Seções administrativas">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -149,7 +149,7 @@ function GeneralSettings() {
       setChanges({});
       await queryClient.invalidateQueries({ queryKey: ['admin-settings'] });
       await queryClient.invalidateQueries({ queryKey: ['app-bootstrap'] });
-      toast.success('ConfiguraÃ§Ãµes salvas e auditadas.');
+      toast.success('Configurações salvas e auditadas.');
     },
     onError: (error) => toast.error(error.message),
   });
@@ -159,7 +159,7 @@ function GeneralSettings() {
     return (
       <StatePanel
         kind="error"
-        title="ConfiguraÃ§Ãµes indisponÃ­veis"
+        title="Configurações indisponíveis"
         description={settings.error.message}
       />
     );
@@ -168,13 +168,13 @@ function GeneralSettings() {
   const labels: Record<string, string> = {
     'system.name': 'Nome do sistema',
     'company.name': 'Empresa',
-    'system.timezone': 'Fuso horÃ¡rio',
+    'system.timezone': 'Fuso horário',
     'system.date_format': 'Formato de data e hora',
-    'home.title': 'TÃ­tulo da Home',
-    'home.subtitle': 'SubtÃ­tulo da Home',
-    'analytics.recurrence.count': 'Quantidade para reincidÃªncia',
-    'analytics.recurrence.window_days': 'Janela da reincidÃªncia (dias)',
-    'inventory.stale_after_days': 'Cadastro desatualizado apÃ³s (dias)',
+    'home.title': 'Título da Home',
+    'home.subtitle': 'Subtítulo da Home',
+    'analytics.recurrence.count': 'Quantidade para reincidência',
+    'analytics.recurrence.window_days': 'Janela da reincidência (dias)',
+    'inventory.stale_after_days': 'Cadastro desatualizado após (dias)',
   };
 
   return (
@@ -183,7 +183,7 @@ function GeneralSettings() {
         <div>
           <span>GERAL</span>
           <h2>Identidade e comportamento</h2>
-          <p>Textos sÃ£o armazenados como dados, sem permitir HTML ou SQL.</p>
+          <p>Textos são armazenados como dados, sem permitir HTML ou SQL.</p>
         </div>
         <Button
           leadingIcon={<Save />}
@@ -191,7 +191,7 @@ function GeneralSettings() {
           loading={mutation.isPending}
           onClick={() => mutation.mutate()}
         >
-          Salvar alteraÃ§Ãµes
+          Salvar alterações
         </Button>
       </header>
       <div className={styles.settingsGrid}>
@@ -212,7 +212,7 @@ function GeneralSettings() {
         <span>
           <strong>Estrutura protegida</strong>
           <small>
-            A matriz das 48 posturas e suas quantidades de baterias nÃ£o sÃ£o editÃ¡veis nesta tela.
+            A matriz das 48 posturas e suas quantidades de baterias não são editÃ¡veis nesta tela.
           </small>
         </span>
       </div>
@@ -256,10 +256,10 @@ function UsersAdmin() {
       });
       setInviteOpen(false);
       await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
-      toast.success('UsuÃ¡rio criado e perfil configurado.');
+      toast.success('Usuário criado e perfil configurado.');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel enviar o convite.'),
+      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possível enviar o convite.'),
   });
 
   if (query.isLoading) return <PageSkeleton />;
@@ -267,7 +267,7 @@ function UsersAdmin() {
     return (
       <StatePanel
         kind="error"
-        title="UsuÃ¡rios indisponÃ­veis"
+        title="Usuários indisponíveis"
         description={query.error?.message ?? 'Sem dados.'}
       />
     );
@@ -293,7 +293,7 @@ function UsersAdmin() {
       setPending(null);
       toast.success('Acesso atualizado e auditado.');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possÃ­vel atualizar o usuÃ¡rio.');
+      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possível atualizar o usuÃ¡rio.');
     } finally {
       setBusy(false);
     }
@@ -321,8 +321,8 @@ function UsersAdmin() {
       <header className={styles.panelHeader}>
         <div>
           <span>ACESSO</span>
-          <h2>UsuÃ¡rios e perfis</h2>
-          <p>Novos usuÃ¡rios sÃ£o convidados pelo Supabase; aqui vocÃª controla escopo e ativaÃ§Ã£o.</p>
+          <h2>Usuários e perfis</h2>
+          <p>Crie usuários pelo site e controle nome, senha temporária, função e setor.</p>
         </div>
         <Button leadingIcon={<UserPlus />} onClick={() => setInviteOpen((value) => !value)}>
           Criar usuário
@@ -364,13 +364,13 @@ function UsersAdmin() {
             <input
               required
               type="text"
-              minLength={8}
+              minLength={6}
               maxLength={128}
               value={invite.password}
               onChange={(event) =>
                 setInvite((current) => ({ ...current, password: event.target.value }))
               }
-              placeholder="Ex: Mantiqueira@123"
+              placeholder="Mínimo 6 caracteres"
             />
           </label>
           <label>
@@ -414,7 +414,7 @@ function UsersAdmin() {
               disabled={
                 invite.displayName.trim().length < 2 ||
                 !invite.email.includes('@') ||
-                invite.password.length < 8
+                invite.password.length < 6
               }
             >
               Criar usuário
@@ -439,9 +439,9 @@ function UsersAdmin() {
               <div className={styles.userIdentity}>
                 <strong>
                   {user.display_name}
-                  {self ? ' (vocÃª)' : ''}
+                  {self ? ' (você)' : ''}
                 </strong>
-                <small>{user.roleCodes.join(' Â· ') || 'Sem perfil'}</small>
+                <small>{user.roleCodes.join(' · ') || 'Sem perfil'}</small>
               </div>
               <div className={styles.userEditor}>
                 <label>
@@ -527,13 +527,13 @@ function UsersAdmin() {
       <ConfirmDialog
         open={Boolean(pending)}
         onOpenChange={(open) => !open && setPending(null)}
-        title="Confirmar mudanÃ§a de acesso"
+        title="Confirmar mudança de acesso"
         description={
           pending ? (
             <p>
-              <strong>{pending.user.display_name}</strong> ficarÃ¡{' '}
+              <strong>{pending.user.display_name}</strong> ficará{' '}
               {pending.active ? 'ativo' : 'inativo'} com o perfil{' '}
-              <strong>{pending.roleCodes.join(', ')}</strong>. A mudanÃ§a serÃ¡ registrada.
+              <strong>{pending.roleCodes.join(', ')}</strong>. A mudança será registrada.
             </p>
           ) : null
         }
@@ -559,16 +559,16 @@ function AuditPanel() {
       <StatePanel
         kind="empty"
         title="Nenhum evento registrado"
-        description="As aÃ§Ãµes crÃ­ticas aparecerÃ£o aqui."
+        description="As ações críticas aparecerÃ£o aqui."
       />
     );
   return (
     <section className={styles.panel}>
       <header className={styles.panelHeader}>
         <div>
-          <span>HISTÃ“RICO</span>
+          <span>HISTÓRICO</span>
           <h2>Auditoria do sistema</h2>
-          <p>Registro append-only das alteraÃ§Ãµes importantes.</p>
+          <p>Registro append-only das alterações importantes.</p>
         </div>
       </header>
       <div className={styles.auditList}>
@@ -582,7 +582,7 @@ function AuditPanel() {
             <div>
               <strong>{entry.action}</strong>
               <small>
-                {entry.entity_table} Â· {entry.entity_id ?? 'sistema'}
+                {entry.entity_table} · {entry.entity_id ?? 'sistema'}
               </small>
             </div>
           </article>

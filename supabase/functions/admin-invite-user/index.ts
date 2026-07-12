@@ -71,8 +71,8 @@ Deno.serve(async (request) => {
     return json({ error: 'E-mail inválido.' }, 400, configuredOrigin);
   if (displayName.length < 2 || displayName.length > 120)
     return json({ error: 'Nome inválido.' }, 400, configuredOrigin);
-  if (password.length < 8 || password.length > 128)
-    return json({ error: 'A senha temporária deve ter entre 8 e 128 caracteres.' }, 400, configuredOrigin);
+  if (password.length < 6 || password.length > 128)
+    return json({ error: 'A senha temporária deve ter entre 6 e 128 caracteres.' }, 400, configuredOrigin);
   if (!allowedRoles.has(roleCode))
     return json({ error: 'Perfil inválido.' }, 400, configuredOrigin);
 
