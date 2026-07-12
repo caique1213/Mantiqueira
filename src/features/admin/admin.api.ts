@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { requireSupabaseClient } from '../../lib/supabase';
+import { runtimeConfig } from '../../lib/env';
 
 const profileSchema = z.object({
   id: z.string().uuid(),
@@ -98,10 +99,43 @@ export async function inviteUser(input: {
   roleCode: string;
   primarySectorId: string | null;
 }) {
-  const { data, error } = await requireSupabaseClient().functions.invoke('admin-invite-user', {
-    body: input,
-  });
-  if (error) throw error;
+  if (!runtimeConfig.configured) throw new Error('Supabase ainda não foi configurado.');
+  const client = requireSupabaseClient();
+  const sessionResult = await client.auth.getSession();
+  const accessToken = sessionResult.data.session?.access_token;
+  if (!accessToken) throw new Error('Sessão expirada. Saia e entre novamente.');
+
+  const response = await fetch(
+    `${runtimeConfig.env.VITE_SUPABASE_URL}/functions/v1/admin-invite-user`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        apikey: runtimeConfig.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    },
+  );
+
+  let payload: unknown = null;
+  try {
+    payload = await response.json();
+  } catch {
+    // A resposta da Edge Function deveria ser JSON; se não for, tratamos abaixo.
+  }
+
+  if (!response.ok) {
+    const message =
+      typeof payload === 'object' &&
+      payload !== null &&
+      'error' in payload &&
+      typeof payload.error === 'string'
+        ? payload.error
+        : `Não foi possível criar o usuário. Código HTTP ${response.status}.`;
+    throw new Error(message);
+  }
+
   return z
     .object({
       userId: z.string().uuid(),
@@ -109,7 +143,7 @@ export async function inviteUser(input: {
       created: z.boolean().optional(),
       invited: z.boolean().optional(),
     })
-    .parse(data);
+    .parse(payload);
 }
 
 export async function fetchAppSettings() {
