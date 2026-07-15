@@ -3,11 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getSupabaseClient } from '../../lib/supabase';
 import { useAuth } from '../auth/AuthProvider';
-import {
-  fetchNotifications,
-  fetchNotificationSettings,
-  previewNotificationSound,
-} from './notifications.api';
+import { fetchNotifications, fetchNotificationSettings } from './notifications.api';
 import { isAlarmSilenced } from './alarm-silence';
 
 function isQuietTime(value: Record<string, unknown>): boolean {
@@ -28,7 +24,6 @@ export function NotificationAlertController() {
   const profileId = auth.user?.id ?? '';
   const queryClient = useQueryClient();
   const seenIds = useRef<Set<string> | null>(null);
-  const alarmTimer = useRef<number | null>(null);
   const [silenceRevision, setSilenceRevision] = useState(0);
 
   const feed = useQuery({
@@ -112,24 +107,6 @@ export function NotificationAlertController() {
     if (isQuietTime(preferences.quiet_hours)) return;
 
     const timers: number[] = [];
-    if (preferences.sound_enabled) {
-      const sound = configuration.sounds.find((item) => item.id === preferences.sound_preset_id);
-      if (sound) {
-        const repetitions = Math.max(1, Math.min(2, preferences.repeat_count));
-        for (let index = 0; index < repetitions; index += 1) {
-          timers.push(
-            window.setTimeout(() => {
-              try {
-                previewNotificationSound(sound.audio_key, preferences.volume);
-              } catch {
-                // Alguns navegadores mantêm áudio bloqueado até a primeira interação do usuário.
-              }
-            }, index * 1100),
-          );
-        }
-      }
-    }
-
     if (preferences.speech_enabled && 'speechSynthesis' in window) {
       timers.push(
         window.setTimeout(() => {
@@ -142,49 +119,6 @@ export function NotificationAlertController() {
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [feed.data, profileId, settings.data, silenceRevision]);
-
-  useEffect(() => {
-    const configuration = settings.data;
-    const preferences = configuration?.preferences;
-    const unreadWorkOrderNotifications = feed.data?.filter((item) => item.workOrderId) ?? [];
-
-    if (alarmTimer.current !== null) {
-      window.clearInterval(alarmTimer.current);
-      alarmTimer.current = null;
-    }
-
-    if (
-      !unreadWorkOrderNotifications.length ||
-      !configuration ||
-      !preferences?.enabled ||
-      !preferences.sound_enabled ||
-      isAlarmSilenced(profileId) ||
-      isQuietTime(preferences.quiet_hours)
-    ) {
-      return;
-    }
-
-    const sound = configuration.sounds.find((item) => item.id === preferences.sound_preset_id);
-    if (!sound) return;
-
-    const playAlarm = () => {
-      try {
-        previewNotificationSound(sound.audio_key, preferences.volume);
-      } catch {
-        // Navegadores podem bloquear áudio até a primeira interação do usuário.
-      }
-    };
-
-    playAlarm();
-    alarmTimer.current = window.setInterval(playAlarm, 2_600);
-
-    return () => {
-      if (alarmTimer.current !== null) {
-        window.clearInterval(alarmTimer.current);
-        alarmTimer.current = null;
-      }
-    };
   }, [feed.data, profileId, settings.data, silenceRevision]);
 
   return null;

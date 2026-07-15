@@ -192,6 +192,16 @@ export async function fetchSoundPresetsAdmin() {
   return z.array(soundPresetSchema).parse(data ?? []);
 }
 
+export async function createSoundPresetAdmin(input: { name: string; audioDataUrl: string }) {
+  const { data, error } = await requireSupabaseClient().rpc('admin_create_sound_preset', {
+    p_name: input.name,
+    p_audio_key: input.audioDataUrl,
+    p_confirmation: 'CONFIRMAR',
+  });
+  if (error) throw error;
+  return soundPresetSchema.parse(data);
+}
+
 export async function fetchAuditLog(limit = 80) {
   const { data, error } = await requireSupabaseClient()
     .from('audit_logs')

@@ -8,6 +8,7 @@ import {
   Save,
   Settings2,
   ShieldCheck,
+  Upload,
   UserCog,
   UserPlus,
   Volume2,
@@ -21,6 +22,7 @@ import { StatePanel } from '../../components/ui/StatePanel';
 import { ThemeAdminPanel } from '../themes';
 import { useAuth } from '../auth/AuthProvider';
 import {
+  createSoundPresetAdmin,
   fetchAppSettings,
   fetchAuditLog,
   fetchSoundPresetsAdmin,
@@ -109,6 +111,8 @@ function GeneralSettings() {
   const queryClient = useQueryClient();
   const settings = useQuery({ queryKey: ['admin-settings'], queryFn: fetchAppSettings });
   const sounds = useQuery({ queryKey: ['admin-sound-presets'], queryFn: fetchSoundPresetsAdmin });
+  const [alarmName, setAlarmName] = useState('');
+  const [alarmFile, setAlarmFile] = useState<File | null>(null);
   const initialValues = useMemo(() => {
     const values: Record<string, string> = {};
     for (const setting of settings.data ?? []) {
@@ -128,6 +132,31 @@ function GeneralSettings() {
     return values;
   }, [settings.data]);
   const [changes, setChanges] = useState<Record<string, string>>({});
+  const soundMutation = useMutation({
+    mutationFn: async () => {
+      if (!alarmFile) throw new Error('Selecione um arquivo de áudio.');
+      if (!alarmName.trim()) throw new Error('Informe um nome para o alarme.');
+      if (!/^audio\/(mpeg|mp3|wav|ogg|webm)/.test(alarmFile.type)) {
+        throw new Error('Use um arquivo MP3, WAV, OGG ou WEBM.');
+      }
+      if (alarmFile.size > 1_000_000) {
+        throw new Error('Use um áudio com no máximo 1 MB para carregar rápido no painel.');
+      }
+      return createSoundPresetAdmin({
+        name: alarmName.trim(),
+        audioDataUrl: await fileToDataUrl(alarmFile),
+      });
+    },
+    onSuccess: async (sound) => {
+      setAlarmName('');
+      setAlarmFile(null);
+      setChanges((current) => ({ ...current, 'notification.default_sound_preset_key': sound.key }));
+      await queryClient.invalidateQueries({ queryKey: ['admin-sound-presets'] });
+      toast.success('Alarme importado. Ele já ficou selecionado para salvar como padrão.');
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : 'Não foi possível importar o alarme.'),
+  });
   const mutation = useMutation({
     mutationFn: async () => {
       for (const [key, value] of Object.entries(changes)) {
@@ -271,8 +300,54 @@ function GeneralSettings() {
           </small>
         </span>
       </div>
+      <section className={styles.alarmImportBox}>
+        <div>
+          <span>ALARME PERSONALIZADO</span>
+          <h3>Importar novo alarme</h3>
+          <p>
+            Use um áudio curto em MP3, WAV, OGG ou WEBM. No painel operacional ele tocará em loop
+            até a OS ser visualizada.
+          </p>
+        </div>
+        <label>
+          Nome do alarme
+          <input
+            value={alarmName}
+            onChange={(event) => setAlarmName(event.target.value)}
+            placeholder="Ex: Sirene manutenção"
+          />
+        </label>
+        <label>
+          Arquivo
+          <input
+            type="file"
+            accept="audio/mpeg,audio/mp3,audio/wav,audio/ogg,audio/webm"
+            onChange={(event) => setAlarmFile(event.target.files?.[0] ?? null)}
+          />
+        </label>
+        <Button
+          leadingIcon={<Upload />}
+          loading={soundMutation.isPending}
+          disabled={!alarmName.trim() || !alarmFile}
+          onClick={() => soundMutation.mutate()}
+        >
+          Importar alarme
+        </Button>
+      </section>
     </section>
   );
+}
+
+function fileToDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Não foi possível ler o arquivo de áudio.'));
+    reader.onload = () =>
+      typeof reader.result === 'string'
+        ? resolve(reader.result)
+        : reject(new Error('Arquivo de áudio inválido.'));
+    reader.readAsDataURL(file);
+  });
 }
 
 function UsersAdmin() {

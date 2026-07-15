@@ -170,6 +170,59 @@
   font-size: 0.65rem;
 }
 
+.alarmImportBox {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) minmax(10rem, 0.7fr) minmax(12rem, 0.8fr) auto;
+  align-items: end;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius-panel, 1rem);
+  background: color-mix(in srgb, var(--color-primary, #f6b900) 7%, transparent);
+}
+
+.alarmImportBox > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.alarmImportBox span {
+  color: var(--color-primary, #f6b900);
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.alarmImportBox h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.alarmImportBox p {
+  margin: 0;
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.alarmImportBox label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.alarmImportBox input {
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-input-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-control, 0.7rem);
+  background: var(--color-input, rgba(0, 0, 0, 0.2));
+  color: var(--color-input-text, #fff);
+}
+
 .userList,
 .auditList {
   display: grid;
@@ -853,6 +906,10 @@
     padding: 1rem 0 0;
     border-top: 1px solid var(--color-border, rgba(255, 255, 255, 0.07));
     border-left: 0;
+  }
+
+  .alarmImportBox {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -100,6 +100,17 @@ export async function acknowledgeNotification(notificationId: string) {
   return data;
 }
 
+export async function acknowledgeWorkOrderNotifications(workOrderId: string) {
+  const { data, error } = await requireSupabaseClient().rpc(
+    'acknowledge_work_order_notifications',
+    {
+      p_work_order_id: workOrderId,
+    },
+  );
+  if (error) throw error;
+  return Number(data ?? 0);
+}
+
 export async function acknowledgeMany(notificationIds: string[]) {
   for (const id of notificationIds) await acknowledgeNotification(id);
 }
@@ -174,6 +185,9 @@ export async function updateNotificationSettings(
 }
 
 export function previewNotificationSound(audioKey: string, volume: number) {
+  const external = playAudioFileOnce(audioKey, volume);
+  if (external) return;
+
   const AudioContextClass =
     window.AudioContext ??
     (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
@@ -254,4 +268,47 @@ export function previewNotificationSound(audioKey: string, volume: number) {
     oscillator.stop(start + offset + duration);
   }
   window.setTimeout(() => void context.close(), 2300);
+}
+
+export function startLoopingNotificationSound(audioKey: string, volume: number) {
+  const fileLoop = startAudioFileLoop(audioKey, volume);
+  if (fileLoop) return fileLoop;
+
+  let stopped = false;
+  let interval: number | null = null;
+
+  const play = () => {
+    if (!stopped) previewNotificationSound(audioKey, volume);
+  };
+  play();
+  interval = window.setInterval(play, 2_600);
+
+  return () => {
+    stopped = true;
+    if (interval !== null) window.clearInterval(interval);
+  };
+}
+
+function isAudioFileKey(audioKey: string) {
+  return audioKey.startsWith('data:audio/') || audioKey.startsWith('/alarms/');
+}
+
+function playAudioFileOnce(audioKey: string, volume: number) {
+  if (!isAudioFileKey(audioKey)) return false;
+  const audio = new Audio(audioKey);
+  audio.volume = Math.max(0, Math.min(1, volume));
+  audio.play().catch(() => undefined);
+  return true;
+}
+
+function startAudioFileLoop(audioKey: string, volume: number) {
+  if (!isAudioFileKey(audioKey)) return null;
+  const audio = new Audio(audioKey);
+  audio.volume = Math.max(0, Math.min(1, volume));
+  audio.loop = true;
+  audio.play().catch(() => undefined);
+  return () => {
+    audio.pause();
+    audio.currentTime = 0;
+  };
 }
