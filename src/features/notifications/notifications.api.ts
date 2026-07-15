@@ -145,8 +145,9 @@ export async function fetchNotificationSettings(profileId: string) {
   if (defaultSound.error) throw defaultSound.error;
   const parsedSounds = z.array(soundSchema).parse(sounds.data ?? []);
   const defaultKey =
-    typeof defaultSound.data?.value === 'string' ? defaultSound.data.value : 'industrial_bell';
-  const globalSound = parsedSounds.find((sound) => sound.key === defaultKey) ?? parsedSounds[0] ?? null;
+    typeof defaultSound.data?.value === 'string' ? defaultSound.data.value : 'long_siren';
+  const globalSound =
+    parsedSounds.find((sound) => sound.key === defaultKey) ?? parsedSounds[0] ?? null;
   const parsedPreferences = preferencesSchema.parse(preferences.data);
   return {
     preferences: {
@@ -184,9 +185,10 @@ export function previewNotificationSound(audioKey: string, volume: number) {
       [980, 0.17, 0.18],
     ],
     'short-siren': [
-      [520, 0, 0.15],
-      [760, 0.15, 0.15],
-      [520, 0.3, 0.16],
+      [520, 0, 0.18],
+      [740, 0.18, 0.2],
+      [960, 0.38, 0.22],
+      [620, 0.62, 0.22],
     ],
     'metal-chime': [
       [880, 0, 0.12],
@@ -224,25 +226,32 @@ export function previewNotificationSound(audioKey: string, volume: number) {
       [659, 0.4, 0.24],
     ],
     'long-siren': [
-      [440, 0, 0.2],
-      [660, 0.2, 0.2],
-      [880, 0.4, 0.2],
-      [660, 0.6, 0.2],
-      [440, 0.8, 0.26],
+      [440, 0, 0.22],
+      [560, 0.18, 0.22],
+      [720, 0.36, 0.24],
+      [900, 0.58, 0.28],
+      [720, 0.86, 0.24],
+      [560, 1.06, 0.22],
+      [440, 1.24, 0.26],
     ],
   };
   const start = context.currentTime + 0.03;
   for (const [frequency, offset, duration] of patterns[audioKey] ?? patterns['soft-alert']!) {
     const oscillator = context.createOscillator();
     const gain = context.createGain();
-    oscillator.type = audioKey === 'soft-alert' ? 'sine' : 'triangle';
+    oscillator.type = audioKey.includes('siren')
+      ? 'sawtooth'
+      : audioKey === 'soft-alert'
+        ? 'sine'
+        : 'triangle';
     oscillator.frequency.value = frequency;
     gain.gain.setValueAtTime(0, start + offset);
-    gain.gain.linearRampToValueAtTime(Math.max(0.01, volume) * 0.18, start + offset + 0.015);
+    const intensity = audioKey.includes('siren') ? 0.34 : 0.24;
+    gain.gain.linearRampToValueAtTime(Math.max(0.05, volume) * intensity, start + offset + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.001, start + offset + duration);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(start + offset);
     oscillator.stop(start + offset + duration);
   }
-  window.setTimeout(() => void context.close(), 1200);
+  window.setTimeout(() => void context.close(), 2300);
 }

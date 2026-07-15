@@ -267,7 +267,7 @@ function GeneralSettings() {
         <span>
           <strong>Estrutura protegida</strong>
           <small>
-            A matriz das 48 posturas e suas quantidades de baterias não são editÃ¡veis nesta tela.
+            A matriz das 48 posturas e suas quantidades de baterias não são editáveis nesta tela.
           </small>
         </span>
       </div>
@@ -314,7 +314,7 @@ function UsersAdmin() {
       toast.success('Usuário criado e perfil configurado.');
     },
     onError: (error) =>
-      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possível enviar o convite.'),
+      toast.error(error instanceof Error ? error.message : 'Não foi possível enviar o convite.'),
   });
 
   if (query.isLoading) return <PageSkeleton />;
@@ -348,7 +348,7 @@ function UsersAdmin() {
       setPending(null);
       toast.success('Acesso atualizado e auditado.');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'NÃ£o foi possível atualizar o usuÃ¡rio.');
+      toast.error(error instanceof Error ? error.message : 'Não foi possível atualizar o usuário.');
     } finally {
       setBusy(false);
     }
@@ -526,9 +526,7 @@ function UsersAdmin() {
                   <span>Setor</span>
                   <select
                     value={draft.primarySectorId}
-                    onChange={(event) =>
-                      updateDraft(user, { primarySectorId: event.target.value })
-                    }
+                    onChange={(event) => updateDraft(user, { primarySectorId: event.target.value })}
                   >
                     <option value="">Geral</option>
                     {query.data.sectors.map((sector) => (
@@ -592,7 +590,7 @@ function UsersAdmin() {
             </p>
           ) : null
         }
-        confirmLabel="Confirmar alteraÃ§Ã£o"
+        confirmLabel="Confirmar alteração"
         typedConfirmation="CONFIRMAR"
         tone="danger"
         busy={busy}
@@ -607,14 +605,14 @@ function AuditPanel() {
   if (query.isLoading) return <PageSkeleton />;
   if (query.isError)
     return (
-      <StatePanel kind="error" title="Auditoria indisponÃ­vel" description={query.error.message} />
+      <StatePanel kind="error" title="Auditoria indisponível" description={query.error.message} />
     );
   if (!query.data?.length)
     return (
       <StatePanel
         kind="empty"
         title="Nenhum evento registrado"
-        description="As ações críticas aparecerÃ£o aqui."
+        description="As ações críticas aparecerão aqui."
       />
     );
   return (
@@ -646,4 +644,3 @@ function AuditPanel() {
     </section>
   );
 }
-

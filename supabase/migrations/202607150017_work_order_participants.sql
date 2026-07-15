@@ -1,5 +1,5 @@
--- Parceiros / apoio operacional nas Ordens de Servi?o.
--- Permite registrar mais de uma pessoa que ajudou em uma OS sem trocar o respons?vel principal.
+-- Parceiros / apoio operacional nas Ordens de Serviço.
+-- Permite registrar mais de uma pessoa que ajudou em uma OS sem trocar o responsável principal.
 
 alter table public.work_order_events
   drop constraint if exists work_order_events_event_type_check;
@@ -192,11 +192,11 @@ begin
   end if;
 
   if target.assigned_to is distinct from caller and not private.user_has_permission(caller, 'work_orders.assign.any') then
-    raise exception using errcode = '42501', message = 'Somente o respons?vel atual ou um administrador pode adicionar apoio.';
+    raise exception using errcode = '42501', message = 'Somente o responsável atual ou um administrador pode adicionar apoio.';
   end if;
 
   if p_profile_id = target.assigned_to then
-    raise exception using errcode = '23514', message = 'O respons?vel principal j? est? registrado na OS.';
+    raise exception using errcode = '23514', message = 'O responsável principal j? est? registrado na OS.';
   end if;
 
   select p.display_name into selected_name
@@ -281,7 +281,7 @@ begin
   end if;
 
   if target_order.assigned_to is distinct from caller and not private.user_has_permission(caller, 'work_orders.assign.any') then
-    raise exception using errcode = '42501', message = 'Somente o respons?vel atual ou um administrador pode remover apoio.';
+    raise exception using errcode = '42501', message = 'Somente o responsável atual ou um administrador pode remover apoio.';
   end if;
 
   select display_name into selected_name

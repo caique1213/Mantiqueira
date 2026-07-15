@@ -35,7 +35,7 @@ export function NotificationAlertController() {
     queryKey: ['notification-alert-feed', profileId],
     queryFn: () => fetchNotifications(profileId, true),
     enabled: Boolean(profileId),
-    refetchInterval: 30_000,
+    refetchInterval: 10_000,
   });
   const settings = useQuery({
     queryKey: ['notification-settings', profileId],
@@ -113,11 +113,9 @@ export function NotificationAlertController() {
 
     const timers: number[] = [];
     if (preferences.sound_enabled) {
-      const sound = configuration.sounds.find(
-        (item) => item.id === preferences.sound_preset_id,
-      );
+      const sound = configuration.sounds.find((item) => item.id === preferences.sound_preset_id);
       if (sound) {
-        const repetitions = Math.max(1, Math.min(5, preferences.repeat_count));
+        const repetitions = Math.max(1, Math.min(2, preferences.repeat_count));
         for (let index = 0; index < repetitions; index += 1) {
           timers.push(
             window.setTimeout(() => {
@@ -126,7 +124,7 @@ export function NotificationAlertController() {
               } catch {
                 // Alguns navegadores mantêm áudio bloqueado até a primeira interação do usuário.
               }
-            }, index * 1400),
+            }, index * 1100),
           );
         }
       }
@@ -179,7 +177,7 @@ export function NotificationAlertController() {
     };
 
     playAlarm();
-    alarmTimer.current = window.setInterval(playAlarm, 4_500);
+    alarmTimer.current = window.setInterval(playAlarm, 2_600);
 
     return () => {
       if (alarmTimer.current !== null) {

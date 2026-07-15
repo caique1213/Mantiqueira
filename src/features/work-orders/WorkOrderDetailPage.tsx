@@ -52,15 +52,15 @@ import styles from './work-order-detail.module.css';
 type ActionKind = 'start' | 'waiting_part' | 'resolve' | 'cancel' | 'reopen' | null;
 
 const eventLabels: Record<string, string> = {
-  opened: 'Ordem de serviÃ§o aberta',
-  assigned: 'ResponsÃ¡vel atribuÃ­do',
+  opened: 'Ordem de serviço aberta',
+  assigned: 'Responsável atribuído',
   started: 'Atendimento iniciado',
   status_changed: 'Status alterado',
-  resolved: 'Ordem de serviÃ§o resolvida',
-  cancelled: 'Ordem de serviÃ§o cancelada',
-  reopened: 'Ordem de serviÃ§o reaberta',
-  commented: 'ComentÃ¡rio registrado',
-  needed_item: 'PeÃ§a necessÃ¡ria registrada',
+  resolved: 'Ordem de serviço resolvida',
+  cancelled: 'Ordem de serviço cancelada',
+  reopened: 'Ordem de serviço reaberta',
+  commented: 'Comentário registrado',
+  needed_item: 'Peça necessária registrada',
 };
 
 export function WorkOrderDetailPage() {
@@ -111,7 +111,7 @@ export function WorkOrderDetailPage() {
   const transitionMutation = useMutation({
     mutationFn: (input: TransitionWorkOrderInput) => transitionWorkOrder(input),
     onSuccess: async () => {
-      toast.success('Status atualizado e registrado no histÃ³rico.');
+      toast.success('Status atualizado e registrado no histórico.');
       setAction(null);
       setNote('');
       await refresh();
@@ -124,7 +124,7 @@ export function WorkOrderDetailPage() {
     onSuccess: async () => {
       setComment('');
       setInternalOnly(false);
-      toast.success('ComentÃ¡rio adicionado.');
+      toast.success('Comentário adicionado.');
       await refresh();
     },
     onError: (error) => toast.error(normalizeError(error).message),
@@ -170,7 +170,7 @@ export function WorkOrderDetailPage() {
       setMediaFile(null);
       setMediaCaption('');
       setMediaOpen(false);
-      toast.success('Imagem otimizada e anexada com seguranÃ§a.');
+      toast.success('Imagem otimizada e anexada com segurança.');
       await refresh();
     },
     onError: (error) => toast.error(normalizeError(error).message),
@@ -278,8 +278,8 @@ export function WorkOrderDetailPage() {
     return (
       <StatePanel
         kind="empty"
-        title="OS invÃ¡lida"
-        description="O identificador da ordem de serviÃ§o nÃ£o foi informado."
+        title="OS inválida"
+        description="O identificador da ordem de serviço não foi informado."
       />
     );
   if (detail.isLoading) return <PageSkeleton />;
@@ -287,7 +287,7 @@ export function WorkOrderDetailPage() {
     return (
       <StatePanel
         kind="error"
-        title="NÃ£o foi possÃ­vel abrir a OS"
+        title="Não foi possível abrir a OS"
         description={detail.error.message}
         actionLabel="Tentar novamente"
         onAction={() => void detail.refetch()}
@@ -298,7 +298,7 @@ export function WorkOrderDetailPage() {
     return (
       <StatePanel
         kind="empty"
-        title="OS nÃ£o encontrada"
+        title="OS não encontrada"
         description="O chamado pode estar fora das unidades permitidas para o seu perfil."
       />
     );
@@ -348,28 +348,28 @@ export function WorkOrderDetailPage() {
     action === 'start'
       ? 'Iniciar atendimento'
       : action === 'waiting_part'
-        ? 'Colocar em aguardando peÃ§a'
+        ? 'Colocar em aguardando peça'
         : action === 'resolve'
-          ? 'Resolver ordem de serviÃ§o'
+          ? 'Resolver ordem de serviço'
           : action === 'cancel'
-            ? 'Cancelar ordem de serviÃ§o'
-            : 'Reabrir ordem de serviÃ§o';
+            ? 'Cancelar ordem de serviço'
+            : 'Reabrir ordem de serviço';
 
   return (
     <main className={styles.page}>
       <Link className={styles.backLink} to="/ordens">
-        <ArrowLeft /> Voltar para Ordens de ServiÃ§o
+        <ArrowLeft /> Voltar para Ordens de Serviço
       </Link>
 
       <section className={styles.hero}>
         <div>
           <span className={styles.eyebrow}>OS #{String(summary.number).padStart(6, '0')}</span>
-          <h1>{summary.problem_type_name ?? summary.position_name ?? 'ManutenÃ§Ã£o geral'}</h1>
+          <h1>{summary.problem_type_name ?? summary.position_name ?? 'Manutenção geral'}</h1>
           <p>{summary.description}</p>
           <div className={styles.heroMeta}>
             <span>
               <MapPin /> Postura {summary.posture_number}
-              {summary.battery_code ? ` Â· ${summary.battery_code}` : ''}
+              {summary.battery_code ? ` · ${summary.battery_code}` : ''}
             </span>
             <span>
               <Wrench /> {summary.sector_name}
@@ -398,10 +398,10 @@ export function WorkOrderDetailPage() {
       </section>
 
       {!summary?.is_terminal ? (
-        <section className={styles.actionBar} aria-label="AÃ§Ãµes operacionais">
+        <section className={styles.actionBar} aria-label="Ações operacionais">
           <div>
-            <small>RESPONSÃVEL ATUAL</small>
-            <strong>{summary.assigned_to_name ?? 'Ainda nÃ£o atribuÃ­da'}</strong>
+            <small>RESPONSÁVEL ATUAL</small>
+            <strong>{summary.assigned_to_name ?? 'Ainda não atribuída'}</strong>
           </div>
           <div className={styles.actionButtons}>
             {canExecute &&
@@ -422,7 +422,7 @@ export function WorkOrderDetailPage() {
                 leadingIcon={<PackageSearch />}
                 onClick={() => openAction('waiting_part')}
               >
-                Aguardar peÃ§a
+                Aguardar peça
               </Button>
             )}
             {canResolve &&
@@ -440,7 +440,7 @@ export function WorkOrderDetailPage() {
           </div>
           {canExecute && canAssign && !operationallyAssigned && (
             <p className={styles.assignmentHint}>
-              Ao iniciar, a OS serÃ¡ assumida automaticamente no seu nome e o alarme serÃ¡ encerrado
+              Ao iniciar, a OS será assumida automaticamente no seu nome e o alarme será encerrado
               para esta ordem.
             </p>
           )}
@@ -449,8 +449,8 @@ export function WorkOrderDetailPage() {
         <section className={styles.readOnlyBanner}>
           <CheckCircle2 />
           <div>
-            <strong>OS finalizada â€” modo somente leitura</strong>
-            <span>AÃ§Ãµes operacionais foram bloqueadas para proteger o histÃ³rico.</span>
+            <strong>OS finalizada — modo somente leitura</strong>
+            <span>Ações operacionais foram bloqueadas para proteger o histórico.</span>
           </div>
           {canReopen && (
             <Button
@@ -469,23 +469,23 @@ export function WorkOrderDetailPage() {
           <section className={styles.panel}>
             <header>
               <div>
-                <small>ATENDIMENTO TÃ‰CNICO</small>
-                <h2>DiagnÃ³stico e soluÃ§Ã£o</h2>
+                <small>ATENDIMENTO TÉCNICO</small>
+                <h2>Diagnóstico e solução</h2>
               </div>
               <Wrench />
             </header>
             <dl className={styles.serviceGrid}>
-              <Detail label="DiagnÃ³stico" value={summary.diagnosis} />
+              <Detail label="Diagnóstico" value={summary.diagnosis} />
               <Detail label="Causa raiz" value={summary.root_cause} />
-              <Detail label="ServiÃ§o realizado" value={summary.work_performed} wide />
+              <Detail label="Serviço realizado" value={summary.work_performed} wide />
             </dl>
           </section>
 
           <section className={styles.panel}>
             <header>
               <div>
-                <small>EVIDÃŠNCIAS</small>
-                <h2>Fotos da manutenÃ§Ã£o</h2>
+                <small>EVIDÊNCIAS</small>
+                <h2>Fotos da manutenção</h2>
               </div>
               <Camera />
             </header>
@@ -513,8 +513,8 @@ export function WorkOrderDetailPage() {
                   onChange={(event) => setMediaType(event.target.value as typeof mediaType)}
                 >
                   <option value="problem">Problema</option>
-                  <option value="during">Durante o serviÃ§o</option>
-                  <option value="after">ApÃ³s conclusÃ£o</option>
+                  <option value="during">Durante o serviço</option>
+                  <option value="after">Após conclusão</option>
                 </SelectField>
                 <TextField
                   label="Legenda"
@@ -527,7 +527,7 @@ export function WorkOrderDetailPage() {
                   id="work-order-photo"
                   label="Imagem"
                   required
-                  hint="A foto serÃ¡ comprimida para WebP antes do envio."
+                  hint="A foto será comprimida para WebP antes do envio."
                 >
                   <input
                     id="work-order-photo"
@@ -556,11 +556,11 @@ export function WorkOrderDetailPage() {
                     {media.signedUrl ? (
                       <img
                         src={media.signedUrl}
-                        alt={media.caption || 'EvidÃªncia da ordem de serviÃ§o'}
+                        alt={media.caption || 'Evidência da ordem de serviço'}
                       />
                     ) : (
                       <span className={styles.mediaFallback}>
-                        <Camera /> PrÃ©via indisponÃ­vel
+                        <Camera /> Prévia indisponível
                       </span>
                     )}
                     <figcaption>
@@ -571,15 +571,15 @@ export function WorkOrderDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className={styles.emptyInline}>Nenhuma evidÃªncia fotogrÃ¡fica registrada.</p>
+              <p className={styles.emptyInline}>Nenhuma evidência fotográfica registrada.</p>
             )}
           </section>
 
           <section className={styles.panel}>
             <header>
               <div>
-                <small>COMUNICAÃ‡ÃƒO</small>
-                <h2>ComentÃ¡rios</h2>
+                <small>COMUNICAÇÃO</small>
+                <h2>Comentários</h2>
               </div>
               <MessageSquarePlus />
             </header>
@@ -591,7 +591,7 @@ export function WorkOrderDetailPage() {
                   if (comment.trim().length >= 2) void commentMutation.mutateAsync();
                 }}
               >
-                <FieldFrame id="work-order-comment" label="Adicionar observaÃ§Ã£o">
+                <FieldFrame id="work-order-comment" label="Adicionar observação">
                   <textarea
                     id="work-order-comment"
                     rows={3}
@@ -599,7 +599,7 @@ export function WorkOrderDetailPage() {
                     onChange={(event) => setComment(event.target.value)}
                     minLength={2}
                     maxLength={3000}
-                    placeholder="Registre mediÃ§Ãµes, inspeÃ§Ãµes ou informaÃ§Ãµes Ãºteis para a equipe."
+                    placeholder="Registre medições, inspeções ou informações úteis para a equipe."
                   />
                 </FieldFrame>
                 <label className={styles.checkbox}>
@@ -608,7 +608,7 @@ export function WorkOrderDetailPage() {
                     checked={internalOnly}
                     onChange={(event) => setInternalOnly(event.target.checked)}
                   />{' '}
-                  Somente equipe tÃ©cnica
+                  Somente equipe técnica
                 </label>
                 <Button
                   type="submit"
@@ -617,7 +617,7 @@ export function WorkOrderDetailPage() {
                   disabled={comment.trim().length < 2}
                   leadingIcon={<Send />}
                 >
-                  Enviar comentÃ¡rio
+                  Enviar comentário
                 </Button>
               </form>
             ) : null}
@@ -630,7 +630,7 @@ export function WorkOrderDetailPage() {
                     </span>
                     <div>
                       <header>
-                        <strong>{entry.profiles?.display_name ?? 'UsuÃ¡rio'}</strong>
+                        <strong>{entry.profiles?.display_name ?? 'Usuário'}</strong>
                         <time>{formatDateTime(entry.created_at)}</time>
                         {entry.internal_only && <small>Interno</small>}
                       </header>
@@ -640,7 +640,7 @@ export function WorkOrderDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className={styles.emptyInline}>Nenhum comentÃ¡rio registrado.</p>
+              <p className={styles.emptyInline}>Nenhum comentário registrado.</p>
             )}
           </section>
 
@@ -676,17 +676,17 @@ export function WorkOrderDetailPage() {
             <header>
               <div>
                 <small>LOCAL E ATIVO</small>
-                <h2>VÃ­nculo fÃ­sico</h2>
+                <h2>Vínculo físico</h2>
               </div>
               <MapPin />
             </header>
             <dl className={styles.infoList}>
               <Detail label="Postura" value={String(summary.posture_number).padStart(2, '0')} />
               <Detail label="Bateria" value={summary.battery_code} />
-              <Detail label="PosiÃ§Ã£o" value={summary.position_name} />
+              <Detail label="Posição" value={summary.position_name} />
               <Detail label="Fabricante" value={summary.manufacturer_name} />
               <Detail label="Modelo" value={summary.model_name} />
-              <Detail label="CÃ³digo interno" value={summary.asset_internal_code} />
+              <Detail label="Código interno" value={summary.asset_internal_code} />
             </dl>
             <div className={styles.linkRow}>
               <Link to={`/posturas/${summary.posture_number}`}>
@@ -793,7 +793,7 @@ export function WorkOrderDetailPage() {
             <header>
               <div>
                 <small>NECESSIDADES</small>
-                <h2>PeÃ§as / materiais</h2>
+                <h2>Peças / materiais</h2>
               </div>
               <Box />
             </header>
@@ -816,7 +816,7 @@ export function WorkOrderDetailPage() {
                 }}
               >
                 <TextField
-                  label="DescriÃ§Ã£o"
+                  label="Descrição"
                   value={item.description}
                   required
                   minLength={2}
@@ -826,7 +826,7 @@ export function WorkOrderDetailPage() {
                 />
                 <div className={styles.twoFields}>
                   <TextField
-                    label="CÃ³digo"
+                    label="Código"
                     value={item.code}
                     onChange={(event) =>
                       setItem((current) => ({ ...current, code: event.target.value }))
@@ -883,8 +883,8 @@ export function WorkOrderDetailPage() {
                     <strong>{needed.description}</strong>
                     <span>
                       {needed.estimated_quantity} {needed.unit}
-                      {needed.code ? ` Â· ${needed.code}` : ''}
-                      {needed.fulfilled_at ? ' Â· Atendida' : ''}
+                      {needed.code ? ` · ${needed.code}` : ''}
+                      {needed.fulfilled_at ? ' · Atendida' : ''}
                     </span>
                     {needed.manufacturer && <small>{needed.manufacturer}</small>}
                     {needed.notes && <p>{needed.notes}</p>}
@@ -897,7 +897,7 @@ export function WorkOrderDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className={styles.emptyInline}>Nenhuma peÃ§a necessÃ¡ria registrada.</p>
+              <p className={styles.emptyInline}>Nenhuma peça necessária registrada.</p>
             )}
           </section>
 
@@ -905,13 +905,13 @@ export function WorkOrderDetailPage() {
             <header>
               <div>
                 <small>CONTROLE</small>
-                <h2>Datas e responsÃ¡vel</h2>
+                <h2>Datas e responsável</h2>
               </div>
               <Clock3 />
             </header>
             <dl className={styles.infoList}>
               <Detail label="Solicitante" value={summary.opened_by_name} />
-              <Detail label="ResponsÃ¡vel" value={summary.assigned_to_name} />
+              <Detail label="Responsável" value={summary.assigned_to_name} />
               <Detail label="Aberta em" value={formatDateTime(summary.opened_at)} />
               <Detail
                 label="Iniciada em"
@@ -946,7 +946,7 @@ export function WorkOrderDetailPage() {
           <div className={styles.transitionForm}>
             {action === 'resolve' && (
               <>
-                <FieldFrame id="transition-diagnosis" label="DiagnÃ³stico" required>
+                <FieldFrame id="transition-diagnosis" label="Diagnóstico" required>
                   <textarea
                     id="transition-diagnosis"
                     rows={3}
@@ -962,7 +962,7 @@ export function WorkOrderDetailPage() {
                     onChange={(event) => setRootCause(event.target.value)}
                   />
                 </FieldFrame>
-                <FieldFrame id="transition-work" label="ServiÃ§o realizado" required>
+                <FieldFrame id="transition-work" label="Serviço realizado" required>
                   <textarea
                     id="transition-work"
                     rows={3}
@@ -974,7 +974,7 @@ export function WorkOrderDetailPage() {
             )}
             <FieldFrame
               id="transition-note"
-              label={action === 'waiting_part' ? 'PeÃ§a necessÃ¡ria / motivo' : 'ObservaÃ§Ã£o'}
+              label={action === 'waiting_part' ? 'Peça necessária / motivo' : 'Observação'}
               required={action === 'waiting_part' || action === 'cancel'}
             >
               <textarea
@@ -982,19 +982,19 @@ export function WorkOrderDetailPage() {
                 rows={3}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="Esta informaÃ§Ã£o ficarÃ¡ registrada na OS."
+                placeholder="Esta informação ficará registrada na OS."
               />
             </FieldFrame>
           </div>
         }
         confirmLabel={
           action === 'resolve'
-            ? 'Confirmar resoluÃ§Ã£o'
+            ? 'Confirmar resolução'
             : action === 'cancel'
               ? 'Cancelar OS'
               : action === 'reopen'
                 ? 'Reabrir OS'
-                : 'Confirmar alteraÃ§Ã£o'
+                : 'Confirmar alteração'
         }
         tone={action === 'cancel' || action === 'reopen' ? 'danger' : 'default'}
         {...(action === 'cancel'
@@ -1021,7 +1021,7 @@ function Detail({
   return (
     <div data-wide={wide || undefined}>
       <dt>{label}</dt>
-      <dd>{value?.trim() || 'NÃ£o informado'}</dd>
+      <dd>{value?.trim() || 'Não informado'}</dd>
     </div>
   );
 }
