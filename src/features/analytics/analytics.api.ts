@@ -340,21 +340,28 @@ interface AssetCountOptions {
 }
 
 async function countAssets(filters: AnalyticsFilters, options: AssetCountOptions = {}) {
-  let query = requireSupabaseClient()
-    .from('asset_current_location')
-    .select('asset_id', { head: true, count: 'exact' });
+  if (options.installation === 'uninstalled') return 0;
 
-  if (filters.postureNumber !== null) query = query.eq('posture_number', filters.postureNumber);
-  if (options.installation === 'installed') query = query.not('installation_id', 'is', null);
-  if (options.installation === 'uninstalled') query = query.is('installation_id', null);
-  if (options.incomplete) query = query.lt('completeness_percent', 100);
-  if (options.missingNameplate) query = query.eq('has_nameplate_photo', false);
-  if (options.assetTypeId) query = query.eq('asset_type_id', options.assetTypeId);
-  if (options.manufacturerId) query = query.eq('manufacturer_id', options.manufacturerId);
-
-  const { count, error } = await query;
+  const { data, error } = await requireSupabaseClient().rpc('list_inventory_assets', {
+    p_page: 1,
+    p_page_size: 1,
+    p_asset_type_id: options.assetTypeId ?? null,
+    p_manufacturer_id: options.manufacturerId ?? null,
+    p_posture_number: filters.postureNumber,
+    p_completeness: options.incomplete
+      ? 'incomplete'
+      : options.missingNameplate
+        ? 'missing_nameplate'
+        : 'all',
+    p_search: '',
+  });
   if (error) throw error;
-  return count ?? 0;
+  const first = Array.isArray(data) ? data[0] : null;
+  const value =
+    first && typeof first === 'object' && 'total_count' in first
+      ? Number((first as { total_count: unknown }).total_count)
+      : 0;
+  return Number.isFinite(value) ? value : 0;
 }
 
 async function countReplacements(start: string | null) {
@@ -368,14 +375,9 @@ async function countReplacements(start: string | null) {
 }
 
 async function fetchPostureRows(postureNumber: number | null): Promise<PostureAnalyticsRow[]> {
-  let query = requireSupabaseClient()
-    .from('posture_map_summary')
-    .select(
-      'posture_id,posture_number,posture_name,installed_assets,inventory_completeness,open_work_orders,critical_open_work_orders,failure_count,recurrent_assets',
-    )
-    .not('posture_id', 'is', null);
-  if (postureNumber !== null) query = query.eq('posture_number', postureNumber);
-  const { data, error } = await query;
+  const { data, error } = await requireSupabaseClient().rpc('list_analytics_posture_rows', {
+    p_posture_number: postureNumber,
+  });
   if (error) throw error;
   return z
     .array(postureSummarySchema)
