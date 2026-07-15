@@ -285,7 +285,7 @@ export function WorkOrdersPage() {
         people.data?.find((item) => item.profile_id === exportPerson)?.display_name ??
         rows[0]?.executor_name ??
         'Pessoa selecionada';
-      downloadPersonReportCsv(rows, personName, exportFrom, exportTo);
+      downloadPersonReportWorkbook(rows, personName, exportFrom, exportTo);
       toast.success('Planilha gerada.');
     } catch (error) {
       toast.error(
@@ -562,7 +562,7 @@ export function WorkOrdersPage() {
   );
 }
 
-function downloadPersonReportCsv(
+function downloadPersonReportWorkbook(
   rows: WorkOrderPersonReportRow[],
   personName: string,
   startedFrom: string,
@@ -576,70 +576,114 @@ function downloadPersonReportCsv(
     byDay.set(day, current);
   }
 
-  const lines: string[][] = [
-    ['Relatório de Ordens de Serviço por pessoa'],
-    ['Pessoa', personName],
-    ['Período', `${formatDateOnly(startedFrom)} até ${formatDateOnly(startedTo)}`],
-    ['Gerado em', formatDateTime(new Date().toISOString())],
-    [],
-    ['Resumo diário'],
-    ['Data', 'Horas totais', 'OS do dia'],
-  ];
+  const dayEntries = [...byDay.entries()].sort(([left], [right]) => left.localeCompare(right));
+  const totalMinutes = rows.reduce((sum, row) => sum + row.total_minutes, 0);
+  const generatedAt = formatDateTime(new Date().toISOString());
+  const period = `${formatDateOnly(startedFrom)} até ${formatDateOnly(startedTo)}`;
+  const safePerson = escapeHtml(personName);
 
-  for (const [day, dayRows] of [...byDay.entries()].sort(([left], [right]) =>
-    left.localeCompare(right),
-  )) {
-    const totalMinutes = dayRows.reduce((sum, row) => sum + row.total_minutes, 0);
-    const orders = dayRows.map((row) => `#${String(row.number).padStart(6, '0')}`).join(', ');
-    lines.push([formatDateOnly(day), formatHours(totalMinutes), orders]);
-  }
+  const summaryRows = dayEntries
+    .map(([day, dayRows], index) => {
+      const dayMinutes = dayRows.reduce((sum, row) => sum + row.total_minutes, 0);
+      const orders = dayRows.map((row) => `#${String(row.number).padStart(6, '0')}`).join(', ');
+      return `<tr class="${index % 2 ? 'alt' : ''}">
+        <td>${escapeHtml(formatDateOnly(day))}</td>
+        <td class="number">${escapeHtml(formatHours(dayMinutes))}</td>
+        <td>${escapeHtml(String(dayRows.length))}</td>
+        <td>${escapeHtml(orders)}</td>
+      </tr>`;
+    })
+    .join('');
 
-  lines.push(
-    [],
-    ['OS detalhadas'],
-    [
-      'Dia',
-      'OS',
-      'Hora de início',
-      'Hora que finalizou',
-      'Horas',
-      'Nome de quem fez',
-      'Solicitante',
-      'Responsável principal',
-      'Apoios',
-      'Setor',
-      'Postura',
-      'Bateria',
-      'Resumo',
-    ],
-  );
+  const detailRows = rows
+    .map(
+      (row, index) => `<tr class="${index % 2 ? 'alt' : ''}">
+        <td>${escapeHtml(formatDateOnly(row.started_at))}</td>
+        <td class="order">#${escapeHtml(String(row.number).padStart(6, '0'))}</td>
+        <td>${escapeHtml(formatTimeOnly(row.started_at))}</td>
+        <td>${escapeHtml(formatTimeOnly(row.finished_at))}</td>
+        <td class="number">${escapeHtml(formatHours(row.total_minutes))}</td>
+        <td>${escapeHtml(row.executor_name)}</td>
+        <td>${escapeHtml(row.opened_by_name)}</td>
+        <td>${escapeHtml(row.assigned_to_name ?? '')}</td>
+        <td>${escapeHtml(row.support_names)}</td>
+        <td>${escapeHtml(row.sector_name)}</td>
+        <td class="number">${escapeHtml(String(row.posture_number))}</td>
+        <td>${escapeHtml(row.battery_code ?? '')}</td>
+        <td>${escapeHtml(shortSummary(row))}</td>
+      </tr>`,
+    )
+    .join('');
 
-  for (const row of rows) {
-    lines.push([
-      formatDateOnly(row.started_at),
-      `#${String(row.number).padStart(6, '0')}`,
-      formatTimeOnly(row.started_at),
-      formatTimeOnly(row.finished_at),
-      formatHours(row.total_minutes),
-      row.executor_name,
-      row.opened_by_name,
-      row.assigned_to_name ?? '',
-      row.support_names,
-      row.sector_name,
-      String(row.posture_number),
-      row.battery_code ?? '',
-      shortSummary(row),
-    ]);
-  }
+  const workbook = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; color: #2d2417; background: #ffffff; }
+    table { border-collapse: collapse; width: 100%; }
+    .hero td { border: 0; }
+    .brand { background: #f2b705; color: #2b2110; font-size: 22px; font-weight: 800; letter-spacing: .04em; padding: 18px; }
+    .subtitle { background: #2b2110; color: #fff4c2; font-size: 12px; font-weight: 700; padding: 8px 18px; }
+    .info td { border: 1px solid #d9c58b; padding: 7px 10px; }
+    .info .label { width: 170px; background: #fff3c4; color: #6b4b00; font-weight: 800; }
+    .metric td { border: 1px solid #d7c99b; padding: 9px 12px; font-weight: 800; }
+    .metric .label { background: #3b2f1d; color: #ffffff; }
+    .metric .value { background: #fff8df; color: #2b2110; font-size: 16px; }
+    .section td { border: 0; padding: 18px 0 7px; color: #2b2110; font-size: 15px; font-weight: 900; }
+    th { background: #f2b705; color: #2b2110; border: 1px solid #9a7414; padding: 8px; font-weight: 900; text-align: left; }
+    td { border: 1px solid #d8d0b8; padding: 7px; vertical-align: top; }
+    tr.alt td { background: #fff9e8; }
+    .number { text-align: right; mso-number-format:'0.00'; }
+    .order { color: #6b4b00; font-weight: 800; mso-number-format:'\\@'; }
+    .footer td { border: 0; color: #7c735f; font-size: 11px; padding-top: 14px; }
+  </style>
+</head>
+<body>
+  <table class="hero">
+    <tr><td class="brand" colspan="13">MANTIQUEIRA BRASIL · RELATÓRIO DE ORDENS DE SERVIÇO</td></tr>
+    <tr><td class="subtitle" colspan="13">Relatório individual por colaborador, período e horas executadas</td></tr>
+  </table>
+  <br />
+  <table class="info">
+    <tr><td class="label">Pessoa</td><td colspan="12">${safePerson}</td></tr>
+    <tr><td class="label">Período</td><td colspan="12">${escapeHtml(period)}</td></tr>
+    <tr><td class="label">Gerado em</td><td colspan="12">${escapeHtml(generatedAt)}</td></tr>
+  </table>
+  <br />
+  <table class="metric">
+    <tr>
+      <td class="label">Total de OS</td><td class="value">${escapeHtml(String(rows.length))}</td>
+      <td class="label">Horas totais</td><td class="value">${escapeHtml(formatHours(totalMinutes))}</td>
+      <td class="label">Dias com OS</td><td class="value">${escapeHtml(String(dayEntries.length))}</td>
+      <td colspan="7"></td>
+    </tr>
+  </table>
+  <table class="section"><tr><td>Resumo diário</td></tr></table>
+  <table>
+    <thead><tr><th>Data</th><th>Horas totais</th><th>Quantidade de OS</th><th>OS do dia</th></tr></thead>
+    <tbody>${summaryRows}</tbody>
+  </table>
+  <table class="section"><tr><td>OS detalhadas</td></tr></table>
+  <table>
+    <thead>
+      <tr>
+        <th>Dia</th><th>OS</th><th>Hora de início</th><th>Hora que finalizou</th><th>Horas</th>
+        <th>Nome de quem fez</th><th>Solicitante</th><th>Responsável principal</th><th>Apoios</th>
+        <th>Setor</th><th>Postura</th><th>Bateria</th><th>Resumo</th>
+      </tr>
+    </thead>
+    <tbody>${detailRows}</tbody>
+  </table>
+  <table class="footer"><tr><td colspan="13">Arquivo gerado pelo Mantiqueira Maintenance Hub.</td></tr></table>
+</body>
+</html>`;
 
-  const csv = lines
-    .map((line) => line.map((value) => csvCell(String(value ?? ''))).join(';'))
-    .join('\n');
-  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob([workbook], { type: 'application/vnd.ms-excel;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `relatorio-os-${slugifyFileName(personName)}-${startedFrom}-${startedTo}.csv`;
+  link.download = `relatorio-os-${slugifyFileName(personName)}-${startedFrom}-${startedTo}.xls`;
   link.click();
   URL.revokeObjectURL(url);
 }
@@ -652,6 +696,15 @@ function shortSummary(row: WorkOrderPersonReportRow) {
 }
 
 function formatDateOnly(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const parts = value.split('-').map(Number);
+    const year = parts[0] ?? 1970;
+    const month = parts[1] ?? 1;
+    const day = parts[2] ?? 1;
+    return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(
+      new Date(year, month - 1, day),
+    );
+  }
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(value));
 }
 
@@ -671,6 +724,15 @@ function slugifyFileName(value: string) {
     .replace(/[^a-zA-Z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
     .toLowerCase();
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 function formatRelativeDate(value: string) {
