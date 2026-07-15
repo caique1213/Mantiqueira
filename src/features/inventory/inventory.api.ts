@@ -49,10 +49,7 @@ function rows(value: unknown, context = 'registros'): UnknownRow[] {
 const REMOTE_PAGE_SIZE = 800;
 
 async function fetchAllRows(
-  fetchPage: (
-    from: number,
-    to: number,
-  ) => PromiseLike<{ data: unknown; error: unknown }>,
+  fetchPage: (from: number, to: number) => PromiseLike<{ data: unknown; error: unknown }>,
   context: string,
 ): Promise<UnknownRow[]> {
   const result: UnknownRow[] = [];
@@ -181,77 +178,32 @@ function cleanSearchTerm(value: string): string {
     .slice(0, 120);
 }
 
-async function fetchCompletenessMap(assetIds: string[]) {
-  const result = new Map<string, { percent: number; missing: string[] }>();
-  if (!assetIds.length) return result;
-  const { data, error } = await requireSupabaseClient()
-    .from('asset_completeness')
-    .select('asset_id,completeness_percent,missing_fields')
-    .in('asset_id', assetIds);
-  if (error) throw error;
-  for (const item of rows(data ?? [], 'completude')) {
-    const id = requiredString(item, 'asset_id', 'asset_id');
-    result.set(id, {
-      percent: optionalNumber(item, 'completeness_percent') ?? 0,
-      missing: stringArray(item, 'missing_fields'),
-    });
-  }
-  return result;
-}
-
 export async function fetchInventoryPage(input: {
   page: number;
   pageSize: number;
   filters: InventoryFilters;
 }): Promise<InventoryPageResult> {
   const client = requireSupabaseClient();
-
-  let query = client.from('asset_current_location').select('*', { count: 'exact' });
-  if (input.filters.assetTypeId) query = query.eq('asset_type_id', input.filters.assetTypeId);
-  if (input.filters.manufacturerId)
-    query = query.eq('manufacturer_id', input.filters.manufacturerId);
-  if (input.filters.postureNumber)
-    query = query.eq('posture_number', Number(input.filters.postureNumber));
-  if (input.filters.completeness === 'complete') {
-    query = query.gte('completeness_percent', 100);
-  } else if (input.filters.completeness === 'incomplete') {
-    query = query.lt('completeness_percent', 100);
-  } else if (input.filters.completeness === 'missing_nameplate') {
-    query = query.eq('has_nameplate_photo', false);
-  }
-
   const search = cleanSearchTerm(input.filters.search);
-  if (search) {
-    query = query.or(
-      [
-        `internal_code.ilike.%${search}%`,
-        `serial_number.ilike.%${search}%`,
-        `asset_type_name.ilike.%${search}%`,
-        `manufacturer_name.ilike.%${search}%`,
-        `model_name.ilike.%${search}%`,
-        `position_name.ilike.%${search}%`,
-      ].join(','),
-    );
-  }
 
-  const from = (input.page - 1) * input.pageSize;
-  const { data, error, count } = await query
-    .order('posture_number', { ascending: true })
-    .order('battery_code', { ascending: true, nullsFirst: true })
-    .order('position_name', { ascending: true })
-    .range(from, from + input.pageSize - 1);
+  const { data, error } = await client.rpc('list_inventory_assets', {
+    p_page: input.page,
+    p_page_size: input.pageSize,
+    p_asset_type_id: input.filters.assetTypeId || null,
+    p_manufacturer_id: input.filters.manufacturerId || null,
+    p_posture_number: input.filters.postureNumber ? Number(input.filters.postureNumber) : null,
+    p_completeness: input.filters.completeness,
+    p_search: search,
+  });
   if (error) throw error;
 
   const normalized = (data ?? []).map(normalizeInventoryRow);
-  const completeness = await fetchCompletenessMap(normalized.map((item) => item.assetId));
+  const total = data?.length
+    ? (optionalNumber(row(data[0], 'inventário'), 'total_count') ?? normalized.length)
+    : 0;
   return {
-    rows: normalized.map((item) => {
-      const score = completeness.get(item.assetId);
-      return score
-        ? { ...item, completenessPercent: score.percent, missingFields: score.missing }
-        : item;
-    }),
-    total: count ?? normalized.length,
+    rows: normalized,
+    total,
   };
 }
 
@@ -343,11 +295,7 @@ export async function fetchTechnicalModelDetail(modelId: string): Promise<Techni
   const modelRow = row(data, 'modelo técnico');
   const base = normalizeTechnicalModel(modelRow);
   const [assetType, manufacturer, installed] = await Promise.all([
-    client
-      .from('asset_types')
-      .select('id,code,name,domain')
-      .eq('id', base.assetTypeId)
-      .single(),
+    client.from('asset_types').select('id,code,name,domain').eq('id', base.assetTypeId).single(),
     client.from('manufacturers').select('id,name').eq('id', base.manufacturerId).single(),
     client
       .from('asset_current_location')
@@ -835,9 +783,7 @@ export async function fetchAvailablePositions(
   const failure = [postures.error, batteries.error].find(Boolean);
   if (failure) throw failure;
   const occupiedIds = new Set(
-    occupied.map((item) =>
-      requiredString(item, 'asset_position_id', 'asset_position_id'),
-    ),
+    occupied.map((item) => requiredString(item, 'asset_position_id', 'asset_position_id')),
   );
   const postureNumbers = new Map(
     rows(postures.data ?? [], 'posturas').map((item) => [
