@@ -146,6 +146,36 @@
   color: var(--color-primary, #f6b900);
 }
 
+.exportPanel {
+  display: grid;
+  grid-template-columns:
+    minmax(14rem, 1.1fr) minmax(13rem, 1fr) minmax(9rem, 0.55fr) minmax(9rem, 0.55fr)
+    auto;
+  align-items: end;
+  gap: 0.75rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius-panel, 1rem);
+  background: var(--color-card, #14191f);
+}
+
+.exportPanel > div:first-child {
+  display: grid;
+  gap: 0.18rem;
+  align-self: center;
+}
+
+.exportPanel strong {
+  font-size: 0.82rem;
+}
+
+.exportPanel small {
+  color: var(--color-text-muted, #939aa5);
+  font-size: 0.64rem;
+  line-height: 1.35;
+}
+
 .list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -277,6 +307,14 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .exportPanel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exportPanel > div:first-child {
+    grid-column: 1 / -1;
+  }
+
   .list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -287,9 +325,14 @@
     grid-template-columns: 1fr;
   }
 
+  .exportPanel {
+    grid-template-columns: 1fr;
+  }
+
   .list {
     grid-template-columns: 1fr;
   }
+
   .card {
     min-height: 12.5rem;
   }

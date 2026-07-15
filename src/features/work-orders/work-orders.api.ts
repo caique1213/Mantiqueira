@@ -235,6 +235,36 @@ export const workOrderSummarySchema = z.object({
 
 export type WorkOrderSummaryRow = z.infer<typeof workOrderSummarySchema>;
 
+const workOrderPersonSchema = z.object({
+  profile_id: z.string().uuid(),
+  display_name: z.string(),
+  sector_name: z.string().nullable(),
+  role_names: z.array(z.string()).default([]),
+});
+
+const workOrderPersonReportRowSchema = z.object({
+  work_order_id: z.string().uuid(),
+  number: z.coerce.number(),
+  sector_name: z.string(),
+  posture_number: z.coerce.number(),
+  battery_code: z.string().nullable(),
+  position_name: z.string().nullable(),
+  status_name: z.string(),
+  description: z.string(),
+  diagnosis: z.string(),
+  work_performed: z.string(),
+  opened_by_name: z.string(),
+  assigned_to_name: z.string().nullable(),
+  executor_name: z.string(),
+  support_names: z.string(),
+  started_at: z.string(),
+  finished_at: z.string(),
+  total_minutes: z.coerce.number(),
+});
+
+export type WorkOrderPerson = z.infer<typeof workOrderPersonSchema>;
+export type WorkOrderPersonReportRow = z.infer<typeof workOrderPersonReportRowSchema>;
+
 const workOrderParticipantSchema = z.object({
   id: z.string().uuid(),
   work_order_id: z.string().uuid(),
@@ -268,6 +298,7 @@ export interface WorkOrderListFilters {
   postureNumber?: number;
   assignedTo?: string;
   openedBy?: string;
+  personId?: string;
   onlyOpen?: boolean;
 }
 
@@ -285,6 +316,9 @@ export async function fetchWorkOrders(filters: WorkOrderListFilters) {
   if (filters.postureNumber) query = query.eq('posture_number', filters.postureNumber);
   if (filters.assignedTo) query = query.eq('assigned_to', filters.assignedTo);
   if (filters.openedBy) query = query.eq('opened_by', filters.openedBy);
+  if (filters.personId) {
+    query = query.or(`assigned_to.eq.${filters.personId},opened_by.eq.${filters.personId}`);
+  }
   if (filters.onlyOpen) query = query.eq('is_terminal', false);
   if (filters.query?.trim()) {
     const safe = filters.query.trim().replace(/[,%()]/g, ' ');
@@ -292,13 +326,33 @@ export async function fetchWorkOrders(filters: WorkOrderListFilters) {
     query = Number.isInteger(numeric)
       ? query.or(`number.eq.${numeric},description.ilike.%${safe}%`)
       : query.or(
-          `description.ilike.%${safe}%,manufacturer_name.ilike.%${safe}%,model_name.ilike.%${safe}%`,
+          `description.ilike.%${safe}%,manufacturer_name.ilike.%${safe}%,model_name.ilike.%${safe}%,opened_by_name.ilike.%${safe}%,assigned_to_name.ilike.%${safe}%`,
         );
   }
 
   const { data, count, error } = await query;
   if (error) throw error;
   return { rows: z.array(workOrderSummarySchema).parse(data ?? []), total: count ?? 0 };
+}
+
+export async function fetchWorkOrderPeople() {
+  const { data, error } = await requireSupabaseClient().rpc('list_work_order_people');
+  if (error) throw error;
+  return z.array(workOrderPersonSchema).parse(data ?? []);
+}
+
+export async function fetchWorkOrderPersonReport(input: {
+  personId: string;
+  startedFrom: string;
+  startedTo: string;
+}) {
+  const { data, error } = await requireSupabaseClient().rpc('export_work_order_person_report', {
+    p_profile_id: input.personId,
+    p_started_from: input.startedFrom,
+    p_started_to: input.startedTo,
+  });
+  if (error) throw error;
+  return z.array(workOrderPersonReportRowSchema).parse(data ?? []);
 }
 
 export async function fetchWorkOrderDetail(workOrderId: string) {

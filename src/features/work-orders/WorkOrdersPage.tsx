@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import {
   ArrowRight,
   BellRing,
@@ -23,10 +24,29 @@ import { PageSkeleton } from '../../components/ui/Skeleton';
 import { StatePanel } from '../../components/ui/StatePanel';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { useAuth } from '../auth/AuthProvider';
-import { fetchWorkOrderCatalogs, fetchWorkOrders } from './work-orders.api';
+import {
+  fetchWorkOrderCatalogs,
+  fetchWorkOrderPeople,
+  fetchWorkOrderPersonReport,
+  fetchWorkOrders,
+  type WorkOrderPersonReportRow,
+} from './work-orders.api';
 import styles from './work-orders-page.module.css';
 
 const PAGE_SIZE = 18;
+
+function defaultDateRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  return { from: toDateInputValue(start), to: toDateInputValue(now) };
+}
+
+function toDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 const RECEIVING_PANELS: Array<{
   code: string;
   label: string;
@@ -69,18 +89,24 @@ export function WorkOrdersPage() {
   const sector = searchParams.get('sector') ?? '';
   const priority = searchParams.get('priority') ?? '';
   const posture = Number(searchParams.get('posture') ?? 0) || undefined;
+  const person = searchParams.get('person') ?? '';
   const mine = searchParams.get('mine') === '1';
   const openedByMe = searchParams.get('openedByMe') === '1';
   const onlyOpen = searchParams.get('open') !== '0';
+  const [exportOpen, setExportOpen] = useState(false);
+  const defaultRange = useMemo(() => defaultDateRange(), []);
+  const [exportPerson, setExportPerson] = useState(person);
+  const [exportFrom, setExportFrom] = useState(defaultRange.from);
+  const [exportTo, setExportTo] = useState(defaultRange.to);
+  const [exporting, setExporting] = useState(false);
   const visiblePanels = useMemo(
     () =>
-      RECEIVING_PANELS.filter(
-        (panel) => !panel.permission || auth.hasPermission(panel.permission),
-      ),
+      RECEIVING_PANELS.filter((panel) => !panel.permission || auth.hasPermission(panel.permission)),
     [auth],
   );
 
   const catalogs = useQuery({ queryKey: ['work-order-catalogs'], queryFn: fetchWorkOrderCatalogs });
+  const people = useQuery({ queryKey: ['work-order-people'], queryFn: fetchWorkOrderPeople });
   const list = useQuery({
     queryKey: [
       'work-orders',
@@ -90,6 +116,7 @@ export function WorkOrdersPage() {
       sector,
       priority,
       posture,
+      person,
       mine,
       openedByMe,
       onlyOpen,
@@ -103,6 +130,7 @@ export function WorkOrdersPage() {
         ...(sector ? { sectorCode: sector } : {}),
         ...(priority ? { priorityCode: priority } : {}),
         ...(posture ? { postureNumber: posture } : {}),
+        ...(person ? { personId: person } : {}),
         ...(mine && auth.user ? { assignedTo: auth.user.id } : {}),
         ...(openedByMe && auth.user ? { openedBy: auth.user.id } : {}),
         onlyOpen,
@@ -119,6 +147,13 @@ export function WorkOrdersPage() {
       return params;
     });
   }, [debouncedSearch, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!exportPerson && people.data?.length) {
+      const preferred = person || auth.user?.id || people.data[0]?.profile_id || '';
+      if (preferred) setExportPerson(preferred);
+    }
+  }, [auth.user?.id, exportPerson, people.data, person]);
 
   useEffect(() => {
     if (!visiblePanels.length) return;
@@ -229,6 +264,38 @@ export function WorkOrdersPage() {
     URL.revokeObjectURL(url);
   }
 
+  async function exportPersonReport() {
+    if (!exportPerson || !exportFrom || !exportTo) return;
+    if (exportTo < exportFrom) {
+      toast.error('A data final não pode ser menor que a inicial.');
+      return;
+    }
+    setExporting(true);
+    try {
+      const rows = await fetchWorkOrderPersonReport({
+        personId: exportPerson,
+        startedFrom: exportFrom,
+        startedTo: exportTo,
+      });
+      if (!rows.length) {
+        toast.info('Nenhuma OS finalizada encontrada para essa pessoa no período.');
+        return;
+      }
+      const personName =
+        people.data?.find((item) => item.profile_id === exportPerson)?.display_name ??
+        rows[0]?.executor_name ??
+        'Pessoa selecionada';
+      downloadPersonReportCsv(rows, personName, exportFrom, exportTo);
+      toast.success('Planilha gerada.');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Não foi possível exportar o relatório.',
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
+
   if (catalogs.isLoading && list.isLoading) return <PageSkeleton />;
 
   return (
@@ -308,6 +375,18 @@ export function WorkOrdersPage() {
           ))}
         </SelectField>
         <SelectField
+          label="Pessoa"
+          value={person}
+          onChange={(event) => setFilter('person', event.target.value)}
+        >
+          <option value="">Todas</option>
+          {people.data?.map((item) => (
+            <option key={item.profile_id} value={item.profile_id}>
+              {item.display_name} / {item.sector_name ?? 'Geral'}
+            </option>
+          ))}
+        </SelectField>
+        <SelectField
           label="Prioridade"
           value={priority}
           onChange={(event) => setFilter('priority', event.target.value)}
@@ -346,12 +425,68 @@ export function WorkOrdersPage() {
         >
           <Download /> Exportar CSV
         </button>
+        <button
+          type="button"
+          data-active={exportOpen}
+          onClick={() => setExportOpen((value) => !value)}
+        >
+          <Download /> Relatório por pessoa
+        </button>
+        {person && (
+          <button type="button" data-active="true" onClick={() => setFilter('person', '')}>
+            Pessoa:{' '}
+            {people.data?.find((item) => item.profile_id === person)?.display_name ?? 'selecionada'}{' '}
+            ×
+          </button>
+        )}
         {posture && (
           <button type="button" data-active="true" onClick={() => setFilter('posture', '')}>
             Postura {posture} ×
           </button>
         )}
       </div>
+
+      {exportOpen && (
+        <section className={styles.exportPanel}>
+          <div>
+            <strong>Exportar OS feitas por pessoa</strong>
+            <small>Gera uma planilha com início, finalização, horas por OS e total diário.</small>
+          </div>
+          <SelectField
+            label="Pessoa"
+            value={exportPerson}
+            onChange={(event) => setExportPerson(event.target.value)}
+          >
+            <option value="">Selecione</option>
+            {people.data?.map((item) => (
+              <option key={item.profile_id} value={item.profile_id}>
+                {item.display_name} / {item.sector_name ?? 'Geral'}
+              </option>
+            ))}
+          </SelectField>
+          <TextField
+            label="De"
+            type="date"
+            value={exportFrom}
+            onChange={(event) => setExportFrom(event.target.value)}
+          />
+          <TextField
+            label="Até"
+            type="date"
+            value={exportTo}
+            onChange={(event) => setExportTo(event.target.value)}
+          />
+          <Button
+            size="sm"
+            leadingIcon={<Download />}
+            loading={exporting}
+            disabled={!exportPerson || !exportFrom || !exportTo}
+            onClick={() => void exportPersonReport()}
+          >
+            Baixar planilha
+          </Button>
+        </section>
+      )}
 
       {list.isError ? (
         <StatePanel
@@ -425,6 +560,117 @@ export function WorkOrdersPage() {
       )}
     </div>
   );
+}
+
+function downloadPersonReportCsv(
+  rows: WorkOrderPersonReportRow[],
+  personName: string,
+  startedFrom: string,
+  startedTo: string,
+) {
+  const byDay = new Map<string, WorkOrderPersonReportRow[]>();
+  for (const row of rows) {
+    const day = row.started_at.slice(0, 10);
+    const current = byDay.get(day) ?? [];
+    current.push(row);
+    byDay.set(day, current);
+  }
+
+  const lines: string[][] = [
+    ['Relatório de Ordens de Serviço por pessoa'],
+    ['Pessoa', personName],
+    ['Período', `${formatDateOnly(startedFrom)} até ${formatDateOnly(startedTo)}`],
+    ['Gerado em', formatDateTime(new Date().toISOString())],
+    [],
+    ['Resumo diário'],
+    ['Data', 'Horas totais', 'OS do dia'],
+  ];
+
+  for (const [day, dayRows] of [...byDay.entries()].sort(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
+    const totalMinutes = dayRows.reduce((sum, row) => sum + row.total_minutes, 0);
+    const orders = dayRows.map((row) => `#${String(row.number).padStart(6, '0')}`).join(', ');
+    lines.push([formatDateOnly(day), formatHours(totalMinutes), orders]);
+  }
+
+  lines.push(
+    [],
+    ['OS detalhadas'],
+    [
+      'Dia',
+      'OS',
+      'Hora de início',
+      'Hora que finalizou',
+      'Horas',
+      'Nome de quem fez',
+      'Solicitante',
+      'Responsável principal',
+      'Apoios',
+      'Setor',
+      'Postura',
+      'Bateria',
+      'Resumo',
+    ],
+  );
+
+  for (const row of rows) {
+    lines.push([
+      formatDateOnly(row.started_at),
+      `#${String(row.number).padStart(6, '0')}`,
+      formatTimeOnly(row.started_at),
+      formatTimeOnly(row.finished_at),
+      formatHours(row.total_minutes),
+      row.executor_name,
+      row.opened_by_name,
+      row.assigned_to_name ?? '',
+      row.support_names,
+      row.sector_name,
+      String(row.posture_number),
+      row.battery_code ?? '',
+      shortSummary(row),
+    ]);
+  }
+
+  const csv = lines
+    .map((line) => line.map((value) => csvCell(String(value ?? ''))).join(';'))
+    .join('\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `relatorio-os-${slugifyFileName(personName)}-${startedFrom}-${startedTo}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function shortSummary(row: WorkOrderPersonReportRow) {
+  const source = row.work_performed.trim() || row.diagnosis.trim() || row.description.trim();
+  const words = source.replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  if (words.length <= 6) return words.join(' ');
+  return `${words.slice(0, 6).join(' ')}...`;
+}
+
+function formatDateOnly(value: string) {
+  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' }).format(new Date(value));
+}
+
+function formatTimeOnly(value: string | null) {
+  if (!value) return '';
+  return new Intl.DateTimeFormat('pt-BR', { timeStyle: 'short' }).format(new Date(value));
+}
+
+function formatHours(minutes: number) {
+  return (minutes / 60).toFixed(2).replace('.', ',');
+}
+
+function slugifyFileName(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .toLowerCase();
 }
 
 function formatRelativeDate(value: string) {
