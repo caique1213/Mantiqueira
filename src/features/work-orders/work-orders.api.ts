@@ -138,12 +138,15 @@ export async function fetchPositions(postureId: string, batteryId: string | null
   query = batteryId ? query.eq('battery_id', batteryId) : query.is('battery_id', null);
   const { data, error } = await query;
   if (error) throw error;
-  return z.array(positionSchema).parse(data ?? []).sort((left, right) => {
-    const leftArea = left.code.startsWith('area_');
-    const rightArea = right.code.startsWith('area_');
-    if (leftArea && rightArea) return left.code.localeCompare(right.code, 'pt-BR');
-    return left.name.localeCompare(right.name, 'pt-BR');
-  });
+  return z
+    .array(positionSchema)
+    .parse(data ?? [])
+    .sort((left, right) => {
+      const leftArea = left.code.startsWith('area_');
+      const rightArea = right.code.startsWith('area_');
+      if (leftArea && rightArea) return left.code.localeCompare(right.code, 'pt-BR');
+      return left.name.localeCompare(right.name, 'pt-BR');
+    });
 }
 
 export async function fetchInstalledAssetForPosition(positionId: string) {
@@ -232,6 +235,29 @@ export const workOrderSummarySchema = z.object({
 
 export type WorkOrderSummaryRow = z.infer<typeof workOrderSummarySchema>;
 
+const workOrderParticipantSchema = z.object({
+  id: z.string().uuid(),
+  work_order_id: z.string().uuid(),
+  profile_id: z.string().uuid(),
+  display_name: z.string(),
+  sector_name: z.string().nullable(),
+  role_names: z.array(z.string()).default([]),
+  added_by: z.string().uuid().nullable(),
+  added_by_name: z.string().nullable(),
+  note: z.string(),
+  added_at: z.string(),
+});
+
+const workOrderPartnerCandidateSchema = z.object({
+  profile_id: z.string().uuid(),
+  display_name: z.string(),
+  sector_name: z.string().nullable(),
+  role_names: z.array(z.string()).default([]),
+});
+
+export type WorkOrderParticipant = z.infer<typeof workOrderParticipantSchema>;
+export type WorkOrderPartnerCandidate = z.infer<typeof workOrderPartnerCandidateSchema>;
+
 export interface WorkOrderListFilters {
   page: number;
   pageSize: number;
@@ -277,39 +303,47 @@ export async function fetchWorkOrders(filters: WorkOrderListFilters) {
 
 export async function fetchWorkOrderDetail(workOrderId: string) {
   const client = requireSupabaseClient();
-  const [summaryResult, eventsResult, commentsResult, neededResult, mediaResult] =
-    await Promise.all([
-      client.from('work_order_summary').select('*').eq('work_order_id', workOrderId).single(),
-      client
-        .from('work_order_events')
-        .select('*')
-        .eq('work_order_id', workOrderId)
-        .order('occurred_at'),
-      client
-        .from('work_order_comments')
-        .select(
-          'id,work_order_id,author_id,body,internal_only,created_at,edited_at,profiles:author_id(display_name)',
-        )
-        .eq('work_order_id', workOrderId)
-        .order('created_at'),
-      client
-        .from('work_order_needed_items')
-        .select('*')
-        .eq('work_order_id', workOrderId)
-        .order('created_at'),
-      client
-        .from('work_order_media')
-        .select('*')
-        .eq('work_order_id', workOrderId)
-        .is('archived_at', null)
-        .order('created_at'),
-    ]);
+  const [
+    summaryResult,
+    eventsResult,
+    commentsResult,
+    neededResult,
+    mediaResult,
+    participantsResult,
+  ] = await Promise.all([
+    client.from('work_order_summary').select('*').eq('work_order_id', workOrderId).single(),
+    client
+      .from('work_order_events')
+      .select('*')
+      .eq('work_order_id', workOrderId)
+      .order('occurred_at'),
+    client
+      .from('work_order_comments')
+      .select(
+        'id,work_order_id,author_id,body,internal_only,created_at,edited_at,profiles:author_id(display_name)',
+      )
+      .eq('work_order_id', workOrderId)
+      .order('created_at'),
+    client
+      .from('work_order_needed_items')
+      .select('*')
+      .eq('work_order_id', workOrderId)
+      .order('created_at'),
+    client
+      .from('work_order_media')
+      .select('*')
+      .eq('work_order_id', workOrderId)
+      .is('archived_at', null)
+      .order('created_at'),
+    client.rpc('list_work_order_participants', { p_work_order_id: workOrderId }),
+  ]);
   const error = [
     summaryResult.error,
     eventsResult.error,
     commentsResult.error,
     neededResult.error,
     mediaResult.error,
+    participantsResult.error,
   ].find(Boolean);
   if (error) throw error;
 
@@ -385,7 +419,34 @@ export async function fetchWorkOrderDetail(workOrderId: string) {
       )
       .parse(neededResult.data ?? []),
     media,
+    participants: z.array(workOrderParticipantSchema).parse(participantsResult.data ?? []),
   };
+}
+
+export async function fetchWorkOrderPartnerCandidates(workOrderId: string) {
+  const { data, error } = await requireSupabaseClient().rpc('list_work_order_partner_candidates', {
+    p_work_order_id: workOrderId,
+  });
+  if (error) throw error;
+  return z.array(workOrderPartnerCandidateSchema).parse(data ?? []);
+}
+
+export async function addWorkOrderPartner(workOrderId: string, profileId: string, note = '') {
+  const { data, error } = await requireSupabaseClient().rpc('add_work_order_partner', {
+    p_work_order_id: workOrderId,
+    p_profile_id: profileId,
+    p_note: note,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function removeWorkOrderPartner(participantId: string) {
+  const { data, error } = await requireSupabaseClient().rpc('remove_work_order_partner', {
+    p_participant_id: participantId,
+  });
+  if (error) throw error;
+  return data;
 }
 
 export async function assignWorkOrder(workOrderId: string, assigneeId?: string) {

@@ -479,6 +479,67 @@
   margin-top: 0.8rem;
   min-width: min(34rem, 75vw);
 }
+
+.partnerLead {
+  margin: -0.35rem 0 0.8rem;
+  color: var(--color-text-muted);
+  font-size: 0.66rem;
+  line-height: 1.45;
+}
+.partnerList {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+.partnerList article {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.partnerList strong {
+  display: block;
+  font-size: 0.72rem;
+}
+.partnerList small,
+.partnerList p {
+  display: block;
+  margin: 0.15rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.6rem;
+  line-height: 1.45;
+}
+.partnerRemove {
+  display: inline-grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border: 1px solid color-mix(in srgb, var(--color-danger) 40%, var(--color-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+  cursor: pointer;
+}
+.partnerRemove svg {
+  width: 0.9rem;
+}
+.partnerForm {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+  padding: 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.partnerForm button {
+  justify-self: end;
+}
+
 @media (max-width: 950px) {
   .mainGrid {
     grid-template-columns: 1fr;
@@ -530,6 +591,13 @@
   }
   .twoFields {
     grid-template-columns: 1fr;
+  }
+  .partnerList article {
+    grid-template-columns: 2rem 1fr;
+  }
+  .partnerRemove {
+    grid-column: 2;
+    justify-self: start;
   }
   .transitionForm {
     min-width: 0;
