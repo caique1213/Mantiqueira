@@ -18,6 +18,13 @@ const roleSchema = z.object({
   active: z.boolean(),
 });
 
+const soundPresetSchema = z.object({
+  id: z.string().uuid(),
+  key: z.string(),
+  name: z.string(),
+  audio_key: z.string(),
+});
+
 export interface ManagedUser extends z.infer<typeof profileSchema> {
   roleCodes: string[];
 }
@@ -173,6 +180,16 @@ export async function setAppSetting(key: string, value: unknown) {
   });
   if (error) throw error;
   return data;
+}
+
+export async function fetchSoundPresetsAdmin() {
+  const { data, error } = await requireSupabaseClient()
+    .from('sound_presets')
+    .select('id,key,name,audio_key')
+    .eq('active', true)
+    .order('sort_order');
+  if (error) throw error;
+  return z.array(soundPresetSchema).parse(data ?? []);
 }
 
 export async function fetchAuditLog(limit = 80) {

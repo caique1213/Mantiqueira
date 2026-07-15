@@ -2,12 +2,14 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   AtSign,
+  BellRing,
   CalendarClock,
   Eye,
   KeyRound,
   Save,
   ShieldCheck,
   UserRound,
+  Volume2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/Button';
@@ -17,6 +19,11 @@ import { PageSkeleton } from '../../components/ui/Skeleton';
 import { StatePanel } from '../../components/ui/StatePanel';
 import { normalizeError } from '../../lib/errors';
 import { useAuth } from '../auth/AuthProvider';
+import {
+  fetchNotificationSettings,
+  previewNotificationSound,
+  updateNotificationSettings,
+} from '../notifications/notifications.api';
 import { fetchMyProfile, updateMyProfile } from './profile.api';
 import {
   loadPersonalPreferences,
@@ -34,10 +41,16 @@ export function ProfilePage() {
     queryFn: () => fetchMyProfile(profileId),
     enabled: Boolean(profileId),
   });
+  const notificationSettings = useQuery({
+    queryKey: ['notification-settings', profileId],
+    queryFn: () => fetchNotificationSettings(profileId),
+    enabled: Boolean(profileId),
+  });
   const [displayName, setDisplayName] = useState('');
   const [timezone, setTimezone] = useState('America/Cuiaba');
   const [password, setPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [alarmVolume, setAlarmVolume] = useState(0.75);
   const [preferences, setPreferences] = useState<PersonalPreferences>({
     themeMode: 'system',
     lowVision: false,
@@ -53,6 +66,11 @@ export function ProfilePage() {
     if (!profileId) return;
     setPreferences(loadPersonalPreferences(profileId));
   }, [profileId]);
+
+  useEffect(() => {
+    if (!notificationSettings.data) return;
+    setAlarmVolume(notificationSettings.data.preferences.volume);
+  }, [notificationSettings.data]);
 
   const saveProfile = useMutation({
     mutationFn: () => updateMyProfile(displayName, timezone, profile.data?.avatar_path ?? null),
@@ -71,6 +89,26 @@ export function ProfilePage() {
       setPassword('');
       setPasswordConfirmation('');
       toast.success('Senha alterada com segurança.');
+    },
+    onError: (error) => toast.error(normalizeError(error).message),
+  });
+  const saveAlarmVolume = useMutation({
+    mutationFn: () => {
+      if (!notificationSettings.data) throw new Error('Configuração de alarme indisponível.');
+      const { preferences: current } = notificationSettings.data;
+      return updateNotificationSettings(profileId, {
+        enabled: current.enabled,
+        sound_enabled: current.sound_enabled,
+        sound_preset_id: current.sound_preset_id,
+        volume: alarmVolume,
+        speech_enabled: current.speech_enabled,
+        repeat_count: current.repeat_count,
+        quiet_hours: current.quiet_hours,
+      });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notification-settings', profileId] });
+      toast.success('Volume do alarme salvo para este login.');
     },
     onError: (error) => toast.error(normalizeError(error).message),
   });
@@ -243,6 +281,59 @@ export function ProfilePage() {
                 <small>Letras maiores, campos mais altos e leitura mais confortável.</small>
               </span>
             </label>
+          </div>
+        </section>
+
+        <section className={styles.panel}>
+          <header>
+            <div>
+              <small>ALARMES</small>
+              <h2>Meu volume</h2>
+            </div>
+            <BellRing />
+          </header>
+          <div className={styles.form}>
+            <div className={styles.volumeBox}>
+              <label htmlFor="alarm-volume">
+                <strong>Volume do alarme</strong>
+                <small>
+                  O som é definido pela empresa; aqui você ajusta somente o volume deste login.
+                </small>
+              </label>
+              <input
+                id="alarm-volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={alarmVolume}
+                onChange={(event) => setAlarmVolume(Number(event.target.value))}
+              />
+              <span>{Math.round(alarmVolume * 100)}%</span>
+            </div>
+            <div className={styles.inlineActions}>
+              <Button
+                type="button"
+                variant="secondary"
+                leadingIcon={<Volume2 />}
+                disabled={!notificationSettings.data?.globalSound}
+                onClick={() => {
+                  const sound = notificationSettings.data?.globalSound;
+                  if (sound) previewNotificationSound(sound.audio_key, alarmVolume);
+                }}
+              >
+                Testar volume
+              </Button>
+              <Button
+                type="button"
+                leadingIcon={<Save />}
+                loading={saveAlarmVolume.isPending}
+                disabled={!notificationSettings.data}
+                onClick={() => saveAlarmVolume.mutate()}
+              >
+                Salvar volume
+              </Button>
+            </div>
           </div>
         </section>
 

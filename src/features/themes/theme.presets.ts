@@ -47,7 +47,7 @@ const industrialTokens = {
   colorButtonSecondaryHover: '#343D49',
   colorButtonDanger: '#C93D42',
   colorButtonDangerText: '#FFFFFF',
-  colorButtonDangerHover: '#E5484D',
+  colorButtonDangerHover: '#B91C1C',
   statusAwaiting: '#F6B900',
   statusInProgress: '#4C9AFF',
   statusWaitingPart: '#EF8B2C',

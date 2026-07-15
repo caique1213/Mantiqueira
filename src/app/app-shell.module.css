@@ -163,6 +163,35 @@
   backdrop-filter: blur(var(--blur-header, 18px));
 }
 
+.betaBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 clamp(1rem, 3vw, 2rem) 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--color-primary, #f6b900) 42%, transparent);
+  border-radius: var(--radius-panel, 1rem);
+  background: color-mix(in srgb, var(--color-primary, #f6b900) 10%, var(--color-surface, #15191f));
+  color: var(--color-text, #f5f7fa);
+  font-size: 0.82rem;
+}
+
+.betaBanner strong {
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  background: var(--color-button-primary, #f6b900);
+  color: var(--color-button-primary-text, #171104);
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.betaBanner a {
+  color: var(--color-primary, #f6b900);
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
+}
+
 .headerStart,
 .headerActions {
   display: flex;

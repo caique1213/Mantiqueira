@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, Command, Home, LogOut, Menu, Search, Wrench, X } from 'lucide-react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
 import { IconButton } from '../components/ui/IconButton';
 import { useAuth } from '../features/auth/AuthProvider';
-import { GlobalSearchDialog } from '../features/search/GlobalSearchDialog';
+import { fetchAppBootstrap } from '../features/dashboard/dashboard.api';
 import { fetchUnreadNotificationCount } from '../features/notifications/notifications.api';
 import { NotificationAlertController } from '../features/notifications/NotificationAlertController';
 import { PersonalPreferencesController } from '../features/profile/PersonalPreferencesController';
-import { fetchAppBootstrap } from '../features/dashboard/dashboard.api';
+import { GlobalSearchDialog } from '../features/search/GlobalSearchDialog';
 import { resolveModuleIcon } from '../lib/ui-modules';
 import styles from './app-shell.module.css';
 
@@ -205,6 +205,16 @@ export function AppShell() {
             </DropdownMenu.Root>
           </div>
         </header>
+
+        {bootstrap.data?.settings['system.beta_banner_enabled'] !== false && (
+          <div className={styles.betaBanner}>
+            <strong>{String(bootstrap.data?.settings['system.version_label'] ?? 'Beta')}</strong>
+            <span>
+              Sistema em fase de teste. Encontrou erro ou sugestão?{' '}
+              <Link to="/feedback">Enviar feedback</Link>
+            </span>
+          </div>
+        )}
 
         <main className={styles.content} id="conteudo-principal">
           <Outlet />

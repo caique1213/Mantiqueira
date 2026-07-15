@@ -127,19 +127,34 @@ export type SoundPreset = z.infer<typeof soundSchema>;
 
 export async function fetchNotificationSettings(profileId: string) {
   const client = requireSupabaseClient();
-  const [preferences, sounds] = await Promise.all([
+  const [preferences, sounds, defaultSound] = await Promise.all([
     client.from('notification_preferences').select('*').eq('profile_id', profileId).single(),
     client
       .from('sound_presets')
       .select('id,key,name,audio_key')
       .eq('active', true)
       .order('sort_order'),
+    client
+      .from('app_settings')
+      .select('value')
+      .eq('key', 'notification.default_sound_preset_key')
+      .maybeSingle(),
   ]);
   if (preferences.error) throw preferences.error;
   if (sounds.error) throw sounds.error;
+  if (defaultSound.error) throw defaultSound.error;
+  const parsedSounds = z.array(soundSchema).parse(sounds.data ?? []);
+  const defaultKey =
+    typeof defaultSound.data?.value === 'string' ? defaultSound.data.value : 'industrial_bell';
+  const globalSound = parsedSounds.find((sound) => sound.key === defaultKey) ?? parsedSounds[0] ?? null;
+  const parsedPreferences = preferencesSchema.parse(preferences.data);
   return {
-    preferences: preferencesSchema.parse(preferences.data),
-    sounds: z.array(soundSchema).parse(sounds.data ?? []),
+    preferences: {
+      ...parsedPreferences,
+      sound_preset_id: globalSound?.id ?? parsedPreferences.sound_preset_id,
+    },
+    sounds: parsedSounds,
+    globalSound,
   };
 }
 
@@ -186,6 +201,34 @@ export function previewNotificationSound(audioKey: string, volume: number) {
       [660, 0.14, 0.12],
       [880, 0.28, 0.12],
       [660, 0.42, 0.18],
+    ],
+    'factory-pulse': [
+      [620, 0, 0.1],
+      [620, 0.16, 0.1],
+      [780, 0.34, 0.2],
+    ],
+    'maintenance-call': [
+      [500, 0, 0.16],
+      [700, 0.22, 0.16],
+      [900, 0.44, 0.18],
+    ],
+    'urgent-beep': [
+      [1050, 0, 0.08],
+      [1050, 0.12, 0.08],
+      [1050, 0.24, 0.08],
+      [760, 0.38, 0.16],
+    ],
+    'control-room': [
+      [392, 0, 0.18],
+      [523, 0.2, 0.18],
+      [659, 0.4, 0.24],
+    ],
+    'long-siren': [
+      [440, 0, 0.2],
+      [660, 0.2, 0.2],
+      [880, 0.4, 0.2],
+      [660, 0.6, 0.2],
+      [440, 0.8, 0.26],
     ],
   };
   const start = context.currentTime + 0.03;

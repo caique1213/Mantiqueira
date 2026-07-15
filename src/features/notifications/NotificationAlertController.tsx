@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { getSupabaseClient } from '../../lib/supabase';
@@ -8,6 +8,7 @@ import {
   fetchNotificationSettings,
   previewNotificationSound,
 } from './notifications.api';
+import { isAlarmSilenced } from './alarm-silence';
 
 function isQuietTime(value: Record<string, unknown>): boolean {
   const start = typeof value.start === 'string' ? value.start.match(/^(\d{2}):(\d{2})$/) : null;
@@ -28,6 +29,7 @@ export function NotificationAlertController() {
   const queryClient = useQueryClient();
   const seenIds = useRef<Set<string> | null>(null);
   const alarmTimer = useRef<number | null>(null);
+  const [silenceRevision, setSilenceRevision] = useState(0);
 
   const feed = useQuery({
     queryKey: ['notification-alert-feed', profileId],
@@ -44,6 +46,16 @@ export function NotificationAlertController() {
   useEffect(() => {
     seenIds.current = null;
   }, [profileId]);
+
+  useEffect(() => {
+    const handleSilence = () => setSilenceRevision((value) => value + 1);
+    window.addEventListener('alarm-silence-changed', handleSilence);
+    window.addEventListener('storage', handleSilence);
+    return () => {
+      window.removeEventListener('alarm-silence-changed', handleSilence);
+      window.removeEventListener('storage', handleSilence);
+    };
+  }, []);
 
   useEffect(() => {
     const client = getSupabaseClient();
@@ -96,6 +108,7 @@ export function NotificationAlertController() {
     });
 
     const preferences = configuration.preferences;
+    if (isAlarmSilenced(profileId)) return;
     if (isQuietTime(preferences.quiet_hours)) return;
 
     const timers: number[] = [];
@@ -131,7 +144,7 @@ export function NotificationAlertController() {
     }
 
     return () => timers.forEach((timer) => window.clearTimeout(timer));
-  }, [feed.data, settings.data]);
+  }, [feed.data, profileId, settings.data, silenceRevision]);
 
   useEffect(() => {
     const configuration = settings.data;
@@ -148,6 +161,7 @@ export function NotificationAlertController() {
       !configuration ||
       !preferences?.enabled ||
       !preferences.sound_enabled ||
+      isAlarmSilenced(profileId) ||
       isQuietTime(preferences.quiet_hours)
     ) {
       return;
@@ -173,7 +187,7 @@ export function NotificationAlertController() {
         alarmTimer.current = null;
       }
     };
-  }, [feed.data, settings.data]);
+  }, [feed.data, profileId, settings.data, silenceRevision]);
 
   return null;
 }

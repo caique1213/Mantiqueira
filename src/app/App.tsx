@@ -24,6 +24,29 @@ const WorkOrderDetailPage = lazy(() =>
     default: module.WorkOrderDetailPage,
   })),
 );
+const OperationalPanelsPage = lazy(() =>
+  import('../features/work-orders/OperationalPanelsPage').then((module) => ({
+    default: module.OperationalPanelsPage,
+  })),
+);
+const FeedbackPage = lazy(() =>
+  import('../features/feedback/FeedbackPage').then((module) => ({
+    default: module.FeedbackPage,
+  })),
+);
+const HelpPage = lazy(() =>
+  import('../features/support/SupportPages').then((module) => ({ default: module.HelpPage })),
+);
+const ReleaseNotesPage = lazy(() =>
+  import('../features/support/SupportPages').then((module) => ({
+    default: module.ReleaseNotesPage,
+  })),
+);
+const SystemStatusPage = lazy(() =>
+  import('../features/support/SupportPages').then((module) => ({
+    default: module.SystemStatusPage,
+  })),
+);
 const AdministrationPage = lazy(() =>
   import('../features/admin/AdministrationPage').then((module) => ({
     default: module.AdministrationPage,
@@ -87,6 +110,7 @@ export function App() {
               <Route path="ordens" element={<WorkOrdersPage />} />
               <Route path="ordens/nova" element={<NewWorkOrderPage />} />
               <Route path="ordens/:workOrderId" element={<WorkOrderDetailPage />} />
+              <Route path="paineis/:panel" element={<OperationalPanelsPage />} />
               <Route path="mapa" element={<PostureMapPage />} />
               <Route path="posturas/:postureNumber" element={<PostureDetailPage />} />
               <Route path="inventario" element={<InventoryPage />} />
@@ -94,6 +118,10 @@ export function App() {
               <Route path="ativos/:assetId" element={<AssetDetailPage />} />
               <Route path="analises" element={<AnalyticsPage />} />
               <Route path="notificacoes" element={<NotificationsPage />} />
+              <Route path="feedback" element={<FeedbackPage />} />
+              <Route path="ajuda" element={<HelpPage />} />
+              <Route path="novidades" element={<ReleaseNotesPage />} />
+              <Route path="status" element={<SystemStatusPage />} />
               <Route path="perfil" element={<ProfilePage />} />
               <Route element={<AdminRoute />}>
                 <Route path="administracao" element={<AdministrationPage />} />

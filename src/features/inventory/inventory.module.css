@@ -520,8 +520,8 @@
   gap: 0.5rem;
   padding: 0.72rem 1rem;
   border-radius: var(--radius-control, 0.75rem);
-  background: var(--button-primary-bg, var(--color-primary, #f6b900));
-  color: var(--button-primary-text, #1a1300);
+  background: var(--color-button-primary, var(--color-primary, #f6b900));
+  color: var(--color-button-primary-text, #1a1300);
   font-size: 0.9rem;
   font-weight: 750;
 }

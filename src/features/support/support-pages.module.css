@@ -1,0 +1,135 @@
+.page {
+  max-width: 92rem;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 3rem;
+}
+
+.grid,
+.statusGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card,
+.statusCard,
+.permissionsBox,
+.timeline article {
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-panel, 1rem);
+  background: var(--color-surface, #15191f);
+  color: var(--color-text, #f5f7fa);
+}
+
+.card {
+  padding: 1.1rem;
+}
+
+.card > span,
+.timeline article > svg,
+.statusCard > svg:first-child {
+  width: 2.7rem;
+  height: 2.7rem;
+  display: grid;
+  place-items: center;
+  padding: 0.65rem;
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--color-primary, #f6b900) 13%, transparent);
+  color: var(--color-primary, #f6b900);
+}
+
+.card h2,
+.timeline h2,
+.permissionsBox h2 {
+  margin: 0.8rem 0 0;
+  font-size: 1rem;
+}
+
+.card p,
+.timeline p,
+.permissionsBox p {
+  color: var(--color-text-muted, #b5bcc7);
+  line-height: 1.6;
+}
+
+.timeline {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.timeline article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.timeline h2,
+.timeline p {
+  margin-top: 0;
+}
+
+.statusCard {
+  position: relative;
+  min-height: 9rem;
+  padding: 1rem;
+}
+
+.statusCard span,
+.statusCard strong {
+  display: block;
+}
+
+.statusCard span {
+  margin-top: 0.9rem;
+  color: var(--color-text-muted, #b5bcc7);
+  font-size: 0.78rem;
+}
+
+.statusCard strong {
+  margin-top: 0.25rem;
+  font-size: 1.1rem;
+}
+
+.statusCard > svg:last-child {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: var(--color-success, #22c55e);
+}
+
+.permissionsBox {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.permissionsBox a {
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+  color: var(--color-primary, #f6b900);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.permissionsBox a svg {
+  width: 1rem;
+}
+
+@media (max-width: 1000px) {
+  .grid,
+  .statusGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .grid,
+  .statusGrid,
+  .timeline article {
+    grid-template-columns: 1fr;
+  }
+}

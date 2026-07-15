@@ -167,12 +167,11 @@ export function NotificationsPage() {
               </span>
             </label>
             <label>
-              <span>Som</span>
+              <span>Som padrão da empresa</span>
               <select
                 value={preferences.sound_preset_id ?? ''}
-                onChange={(event) =>
-                  setDraft({ ...preferences, sound_preset_id: event.target.value || null })
-                }
+                disabled
+                aria-describedby="company-sound-help"
               >
                 {settings.data.sounds.map((sound) => (
                   <option key={sound.id} value={sound.id}>
@@ -180,6 +179,9 @@ export function NotificationsPage() {
                   </option>
                 ))}
               </select>
+              <small id="company-sound-help">
+                O administrador escolhe o alarme global; aqui você ajusta volume e avisos.
+              </small>
             </label>
             <label>
               <span>Volume: {Math.round(preferences.volume * 100)}%</span>

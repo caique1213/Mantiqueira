@@ -37,6 +37,15 @@
   --color-button-danger: #c93d42;
   --color-button-danger-text: #ffffff;
   --color-button-danger-hover: #e5484d;
+  --button-primary-bg: var(--color-button-primary);
+  --button-primary-text: var(--color-button-primary-text);
+  --button-primary-hover: var(--color-button-primary-hover);
+  --button-secondary-bg: var(--color-button-secondary);
+  --button-secondary-text: var(--color-button-secondary-text);
+  --button-secondary-hover: var(--color-button-secondary-hover);
+  --button-danger-bg: var(--color-button-danger);
+  --button-danger-text: var(--color-button-danger-text);
+  --button-danger-hover: var(--color-button-danger-hover);
 
   --status-awaiting: #f6b900;
   --status-in-progress: #4c9aff;

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   UserCog,
   UserPlus,
+  Volume2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/Button';
@@ -22,6 +23,7 @@ import { useAuth } from '../auth/AuthProvider';
 import {
   fetchAppSettings,
   fetchAuditLog,
+  fetchSoundPresetsAdmin,
   fetchUsersAdmin,
   inviteUser,
   manageUser,
@@ -30,6 +32,7 @@ import {
 } from './admin.api';
 import styles from './administration.module.css';
 import { CatalogsPanel } from './CatalogsPanel';
+import { previewNotificationSound } from '../notifications/notifications.api';
 
 const tabs = [
   { value: 'general', label: 'Geral', icon: Settings2 },
@@ -57,6 +60,9 @@ const editableGeneralSettings = [
   'analytics.recurrence.count',
   'analytics.recurrence.window_days',
   'inventory.stale_after_days',
+  'system.beta_banner_enabled',
+  'system.version_label',
+  'notification.default_sound_preset_key',
 ];
 
 export function AdministrationPage() {
@@ -102,6 +108,7 @@ export function AdministrationPage() {
 function GeneralSettings() {
   const queryClient = useQueryClient();
   const settings = useQuery({ queryKey: ['admin-settings'], queryFn: fetchAppSettings });
+  const sounds = useQuery({ queryKey: ['admin-sound-presets'], queryFn: fetchSoundPresetsAdmin });
   const initialValues = useMemo(() => {
     const values: Record<string, string> = {};
     for (const setting of settings.data ?? []) {
@@ -125,7 +132,14 @@ function GeneralSettings() {
     mutationFn: async () => {
       for (const [key, value] of Object.entries(changes)) {
         if (key.startsWith('analytics.recurrence.')) continue;
-        await setAppSetting(key, key === 'inventory.stale_after_days' ? Number(value) : value);
+        await setAppSetting(
+          key,
+          key === 'inventory.stale_after_days'
+            ? Number(value)
+            : key === 'system.beta_banner_enabled'
+              ? value === 'true'
+              : value,
+        );
       }
       if (
         'analytics.recurrence.count' in changes ||
@@ -175,6 +189,9 @@ function GeneralSettings() {
     'analytics.recurrence.count': 'Quantidade para reincidência',
     'analytics.recurrence.window_days': 'Janela da reincidência (dias)',
     'inventory.stale_after_days': 'Cadastro desatualizado após (dias)',
+    'system.beta_banner_enabled': 'Mostrar faixa Beta',
+    'system.version_label': 'Versão exibida',
+    'notification.default_sound_preset_key': 'Alarme padrão global',
   };
 
   return (
@@ -198,12 +215,50 @@ function GeneralSettings() {
         {editableGeneralSettings.map((key) => (
           <label key={key} className={styles.settingField}>
             <span>{labels[key]}</span>
-            <input
-              value={changes[key] ?? initialValues[key] ?? ''}
-              onChange={(event) =>
-                setChanges((current) => ({ ...current, [key]: event.target.value }))
-              }
-            />
+            {key === 'system.beta_banner_enabled' ? (
+              <select
+                value={changes[key] ?? initialValues[key] ?? 'true'}
+                onChange={(event) =>
+                  setChanges((current) => ({ ...current, [key]: event.target.value }))
+                }
+              >
+                <option value="true">Sim</option>
+                <option value="false">Não</option>
+              </select>
+            ) : key === 'notification.default_sound_preset_key' ? (
+              <span className={styles.soundSettingRow}>
+                <select
+                  value={changes[key] ?? initialValues[key] ?? 'industrial_bell'}
+                  onChange={(event) =>
+                    setChanges((current) => ({ ...current, [key]: event.target.value }))
+                  }
+                >
+                  {sounds.data?.map((sound) => (
+                    <option key={sound.id} value={sound.key}>
+                      {sound.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const selected = sounds.data?.find(
+                      (sound) => sound.key === (changes[key] ?? initialValues[key]),
+                    );
+                    if (selected) previewNotificationSound(selected.audio_key, 0.75);
+                  }}
+                >
+                  <Volume2 /> Testar
+                </button>
+              </span>
+            ) : (
+              <input
+                value={changes[key] ?? initialValues[key] ?? ''}
+                onChange={(event) =>
+                  setChanges((current) => ({ ...current, [key]: event.target.value }))
+                }
+              />
+            )}
           </label>
         ))}
       </div>
